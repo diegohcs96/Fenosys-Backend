@@ -6,6 +6,7 @@ package pe.partnertech.fenosys.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -25,6 +26,9 @@ public class PlanillaCosecha implements Serializable {
 
     @Column(name = "tipo_planillacosecha")
     private String tipoCosecha;
+
+    @Column(name = "next_registrodiario")
+    private LocalDateTime nextRegistroDiario;
 
     @OneToMany(cascade = {
             CascadeType.DETACH,
@@ -66,6 +70,14 @@ public class PlanillaCosecha implements Serializable {
 
     public void setTipoCosecha(String tipoCosecha) {
         this.tipoCosecha = tipoCosecha;
+    }
+
+    public LocalDateTime getNextRegistroDiario() {
+        return nextRegistroDiario;
+    }
+
+    public void setNextRegistroDiario(LocalDateTime nextRegistroDiario) {
+        this.nextRegistroDiario = nextRegistroDiario;
     }
 
     public Set<FaseFenologica> getFasesfenologicasPlanillaCosecha() {

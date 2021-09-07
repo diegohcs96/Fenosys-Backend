@@ -12,6 +12,7 @@ import pe.partnertech.fenosys.service.IUbicacionService;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -43,5 +44,10 @@ public class UbicacionServiceImpl implements IUbicacionService {
         }
 
         return rpta;
+    }
+
+    @Override
+    public Set<Ubicacion> ListaUbicaciones() {
+        return data.findAllUbicaciones();
     }
 }

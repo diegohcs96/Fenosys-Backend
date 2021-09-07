@@ -16,7 +16,7 @@ import pe.partnertech.fenosys.service.IUbicacionService;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
-public class UbicacionController {
+public class UbicacionManagementController {
 
     @Autowired
     IUbicacionService ubicacionService;

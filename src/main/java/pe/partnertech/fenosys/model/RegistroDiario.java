@@ -4,17 +4,47 @@
 
 package pe.partnertech.fenosys.model;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-public class RegistroDiario {
+@Entity
+@Table(name = "registrodiario")
+public class RegistroDiario implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     //Atributos
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_registrodiario")
     private Long idRegistroDiario;
 
-    private LocalDate fechaRegistroDiario;
-
+    @Column(name = "fecha_registrodiario")
+    private LocalDateTime fechaRegistroDiario;
 
     //Constructores
+    public RegistroDiario() {
+    }
+
+    public RegistroDiario(LocalDateTime fechaRegistroDiario) {
+        this.fechaRegistroDiario = fechaRegistroDiario;
+    }
 
     //Getters y Setters
+    public Long getIdRegistroDiario() {
+        return idRegistroDiario;
+    }
+
+    public void setIdRegistroDiario(Long idRegistroDiario) {
+        this.idRegistroDiario = idRegistroDiario;
+    }
+
+    public LocalDateTime getFechaRegistroDiario() {
+        return fechaRegistroDiario;
+    }
+
+    public void setFechaRegistroDiario(LocalDateTime fechaRegistroDiario) {
+        this.fechaRegistroDiario = fechaRegistroDiario;
+    }
 }
