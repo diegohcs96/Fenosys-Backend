@@ -2,9 +2,9 @@
  * Copyright (c) 2021. Developed by Diego Campos Sandoval.
  */
 
-package pe.partnertech.fenosys.dto.response.general;
+package pe.partnertech.fenosys.dto.response.general.ubicacion;
 
-public class UbicacionResponse {
+public class DistritoResponse {
 
     //Atributos
     private String paisUbicacion;
@@ -16,26 +16,11 @@ public class UbicacionResponse {
     private String distritoUbicacion;
 
     //Constructores
-    public UbicacionResponse() {
+    public DistritoResponse() {
     }
 
-    public UbicacionResponse(String paisUbicacion) {
-        this.paisUbicacion = paisUbicacion;
-    }
-
-    public UbicacionResponse(String paisUbicacion, String departamentoUbicacion) {
-        this.paisUbicacion = paisUbicacion;
-        this.departamentoUbicacion = departamentoUbicacion;
-    }
-
-    public UbicacionResponse(String paisUbicacion, String departamentoUbicacion, String provinciaUbicacion) {
-        this.paisUbicacion = paisUbicacion;
-        this.departamentoUbicacion = departamentoUbicacion;
-        this.provinciaUbicacion = provinciaUbicacion;
-    }
-
-    public UbicacionResponse(String paisUbicacion, String departamentoUbicacion, String provinciaUbicacion,
-                             String distritoUbicacion) {
+    public DistritoResponse(String paisUbicacion, String departamentoUbicacion, String provinciaUbicacion,
+                            String distritoUbicacion) {
         this.paisUbicacion = paisUbicacion;
         this.departamentoUbicacion = departamentoUbicacion;
         this.provinciaUbicacion = provinciaUbicacion;

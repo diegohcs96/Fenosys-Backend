@@ -25,6 +25,15 @@ public interface IUbicacionDAO extends JpaRepository<Ubicacion, Integer> {
                                                                                                    String provincia,
                                                                                                    String distrito);
 
-    @Query("SELECT u FROM Ubicacion u")
-    Set<Ubicacion> findAllUbicaciones();
+    @Query("SELECT u FROM Ubicacion u GROUP BY u.paisUbicacion")
+    Set<Ubicacion> findAllPaises();
+
+    @Query("SELECT u FROM Ubicacion u GROUP BY u.paisUbicacion, u.departamentoUbicacion")
+    Set<Ubicacion> findAllDepartamentos();
+
+    @Query("SELECT u FROM Ubicacion u GROUP BY u.paisUbicacion, u.departamentoUbicacion, u.provinciaUbicacion")
+    Set<Ubicacion> findAllProvincias();
+
+    @Query("SELECT u FROM Ubicacion u GROUP BY u.paisUbicacion, u.departamentoUbicacion, u.provinciaUbicacion, u.distritoUbicacion")
+    Set<Ubicacion> findAllDistritos();
 }

@@ -39,6 +39,15 @@ public class PlanillaCosecha implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "id_fasefenologica", referencedColumnName = "id_fasefenologica"))
     private Set<FaseFenologica> fasesfenologicasPlanillaCosecha;
 
+    @OneToMany(cascade = {
+            CascadeType.DETACH,
+            CascadeType.REFRESH
+    }, fetch = FetchType.LAZY)
+    @JoinTable(name = "registrosdiarios_planillacosecha",
+            joinColumns = @JoinColumn(name = "id_planillacosecha", referencedColumnName = "id_planillacosecha"),
+            inverseJoinColumns = @JoinColumn(name = "id_registrodiario", referencedColumnName = "id_registrodiario"))
+    private Set<RegistroDiario> registrosdiariosPlanillaCosecha;
+
     //Constructores
     public PlanillaCosecha() {
     }
@@ -86,5 +95,13 @@ public class PlanillaCosecha implements Serializable {
 
     public void setFasesfenologicasPlanillaCosecha(Set<FaseFenologica> fasesfenologicasPlanillaCosecha) {
         this.fasesfenologicasPlanillaCosecha = fasesfenologicasPlanillaCosecha;
+    }
+
+    public Set<RegistroDiario> getRegistrosdiariosPlanillaCosecha() {
+        return registrosdiariosPlanillaCosecha;
+    }
+
+    public void setRegistrosdiariosPlanillaCosecha(Set<RegistroDiario> registrosdiariosPlanillaCosecha) {
+        this.registrosdiariosPlanillaCosecha = registrosdiariosPlanillaCosecha;
     }
 }

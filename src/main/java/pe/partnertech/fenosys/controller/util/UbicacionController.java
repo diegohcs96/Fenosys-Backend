@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pe.partnertech.fenosys.dto.response.general.UbicacionResponse;
+import pe.partnertech.fenosys.dto.response.general.ubicacion.DepartamentoResponse;
+import pe.partnertech.fenosys.dto.response.general.ubicacion.DistritoResponse;
+import pe.partnertech.fenosys.dto.response.general.ubicacion.PaisResponse;
+import pe.partnertech.fenosys.dto.response.general.ubicacion.ProvinciaResponse;
 import pe.partnertech.fenosys.service.IUbicacionService;
 
 import java.util.HashSet;
@@ -28,12 +31,12 @@ public class UbicacionController {
     @GetMapping("/ubicacion/show/paises")
     public ResponseEntity<?> MostrarPaises() {
 
-        Set<UbicacionResponse> lista_paises = new HashSet<>();
+        Set<PaisResponse> lista_paises = new HashSet<>();
 
-        ubicacionService.ListaUbicaciones().forEach(
+        ubicacionService.ListaPaises().forEach(
                 ubicacion -> {
                     lista_paises.add(
-                            new UbicacionResponse(
+                            new PaisResponse(
                                     ubicacion.getPaisUbicacion()
                             ));
                 });
@@ -44,12 +47,12 @@ public class UbicacionController {
     @GetMapping("/ubicacion/show/departamentos")
     public ResponseEntity<?> MostrarDepartamentos() {
 
-        Set<UbicacionResponse> lista_departamentos = new HashSet<>();
+        Set<DepartamentoResponse> lista_departamentos = new HashSet<>();
 
-        ubicacionService.ListaUbicaciones().forEach(
+        ubicacionService.ListaDepartamentos().forEach(
                 ubicacion -> {
                     lista_departamentos.add(
-                            new UbicacionResponse(
+                            new DepartamentoResponse(
                                     ubicacion.getPaisUbicacion(),
                                     ubicacion.getDepartamentoUbicacion()
                             ));
@@ -61,12 +64,12 @@ public class UbicacionController {
     @GetMapping("/ubicacion/show/provincias")
     public ResponseEntity<?> MostrarProvincias() {
 
-        Set<UbicacionResponse> lista_provincias = new HashSet<>();
+        Set<ProvinciaResponse> lista_provincias = new HashSet<>();
 
-        ubicacionService.ListaUbicaciones().forEach(
+        ubicacionService.ListaProvincias().forEach(
                 ubicacion -> {
                     lista_provincias.add(
-                            new UbicacionResponse(
+                            new ProvinciaResponse(
                                     ubicacion.getPaisUbicacion(),
                                     ubicacion.getDepartamentoUbicacion(),
                                     ubicacion.getProvinciaUbicacion()
@@ -79,12 +82,12 @@ public class UbicacionController {
     @GetMapping("/ubicacion/show/distritos")
     public ResponseEntity<?> MostrarDistritos() {
 
-        Set<UbicacionResponse> lista_distritos = new HashSet<>();
+        Set<DistritoResponse> lista_distritos = new HashSet<>();
 
-        ubicacionService.ListaUbicaciones().forEach(
+        ubicacionService.ListaDistritos().forEach(
                 ubicacion -> {
                     lista_distritos.add(
-                            new UbicacionResponse(
+                            new DistritoResponse(
                                     ubicacion.getPaisUbicacion(),
                                     ubicacion.getDepartamentoUbicacion(),
                                     ubicacion.getProvinciaUbicacion(),

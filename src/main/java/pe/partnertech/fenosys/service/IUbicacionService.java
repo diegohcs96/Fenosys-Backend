@@ -18,5 +18,11 @@ public interface IUbicacionService {
 
     int GuardarUbicacion(Ubicacion ubicacion);
 
-    Set<Ubicacion> ListaUbicaciones();
+    Set<Ubicacion> ListaPaises();
+
+    Set<Ubicacion> ListaDepartamentos();
+
+    Set<Ubicacion> ListaProvincias();
+
+    Set<Ubicacion> ListaDistritos();
 }

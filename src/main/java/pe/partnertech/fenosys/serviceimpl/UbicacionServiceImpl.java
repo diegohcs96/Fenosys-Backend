@@ -47,7 +47,22 @@ public class UbicacionServiceImpl implements IUbicacionService {
     }
 
     @Override
-    public Set<Ubicacion> ListaUbicaciones() {
-        return data.findAllUbicaciones();
+    public Set<Ubicacion> ListaPaises() {
+        return data.findAllPaises();
+    }
+
+    @Override
+    public Set<Ubicacion> ListaDepartamentos() {
+        return data.findAllDepartamentos();
+    }
+
+    @Override
+    public Set<Ubicacion> ListaProvincias() {
+        return data.findAllProvincias();
+    }
+
+    @Override
+    public Set<Ubicacion> ListaDistritos() {
+        return data.findAllDistritos();
     }
 }
