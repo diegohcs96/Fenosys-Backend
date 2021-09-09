@@ -21,6 +21,7 @@ public class RegistroDiarioServiceImpl implements IRegistroDiarioService {
 
     @Override
     public int GuardarRegistroDiario(RegistroDiario registrodiario) {
+
         int rpta = 0;
 
         RegistroDiario rd = data.save(registrodiario);
