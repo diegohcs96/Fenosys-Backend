@@ -150,8 +150,8 @@ public class SignupAdminController {
             Optional<Usuario> admin_data = usuarioService.BuscarUsuario_RestoreToken(restoretoken);
 
             if (admin_data.isPresent()) {
-                Optional<Distrito> distrito_data = distritoService.BuscarDistrito_NombreDistrito(
-                        signupAdminRequest.getDistritoUsuario()
+                Optional<Distrito> distrito_data = distritoService.BuscarDistrito_ID(
+                        signupAdminRequest.getIddistritoUsuario()
                 );
 
                 if (distrito_data.isPresent()) {

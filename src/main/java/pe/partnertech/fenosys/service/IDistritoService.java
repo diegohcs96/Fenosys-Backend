@@ -13,5 +13,5 @@ public interface IDistritoService {
 
     Set<Distrito> MostrarDistritos();
 
-    Optional<Distrito> BuscarDistrito_NombreDistrito(String distrito);
+    Optional<Distrito> BuscarDistrito_ID(Long id);
 }

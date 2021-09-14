@@ -38,7 +38,7 @@ public class UpdateAgricultorBasicInfoController {
         Optional<Usuario> agricultor_data = usuarioService.BuscarUsuario_ID(id);
 
         if (agricultor_data.isPresent()) {
-            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_NombreDistrito(updateBasicInfoRequest.getDistritoUsuario());
+            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_ID(updateBasicInfoRequest.getIddistritoUsuario());
 
             if (distrito_data.isPresent()) {
                 Usuario agricultor = agricultor_data.get();

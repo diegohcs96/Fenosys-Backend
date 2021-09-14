@@ -37,7 +37,7 @@ public class UpdateAdministradorBasicInfoController {
         Optional<Usuario> admin_data = usuarioService.BuscarUsuario_ID(id);
 
         if (admin_data.isPresent()) {
-            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_NombreDistrito(updateBasicInfoRequest.getDistritoUsuario());
+            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_ID(updateBasicInfoRequest.getIddistritoUsuario());
 
             if (distrito_data.isPresent()) {
                 Usuario admin = admin_data.get();

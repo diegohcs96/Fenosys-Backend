@@ -27,7 +27,7 @@ public class DistritoServiceImpl implements IDistritoService {
     }
 
     @Override
-    public Optional<Distrito> BuscarDistrito_NombreDistrito(String distrito) {
-        return data.findByNombreDistrito(distrito);
+    public Optional<Distrito> BuscarDistrito_ID(Long id) {
+        return data.findById(id);
     }
 }
