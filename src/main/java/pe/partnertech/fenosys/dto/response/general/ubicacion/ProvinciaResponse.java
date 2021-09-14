@@ -7,44 +7,42 @@ package pe.partnertech.fenosys.dto.response.general.ubicacion;
 public class ProvinciaResponse {
 
     //Atributos
-    private String paisUbicacion;
-
-    private String departamentoUbicacion;
-
-    private String provinciaUbicacion;
+    private Long idDepartamento;
+    private Long idProvincia;
+    private String nombreProvincia;
 
     //Constructores
     public ProvinciaResponse() {
     }
 
-    public ProvinciaResponse(String paisUbicacion, String departamentoUbicacion, String provinciaUbicacion) {
-        this.paisUbicacion = paisUbicacion;
-        this.departamentoUbicacion = departamentoUbicacion;
-        this.provinciaUbicacion = provinciaUbicacion;
+    public ProvinciaResponse(Long idDepartamento, Long idProvincia, String nombreProvincia) {
+        this.idDepartamento = idDepartamento;
+        this.idProvincia = idProvincia;
+        this.nombreProvincia = nombreProvincia;
     }
 
     //Getters y Setters
-    public String getPaisUbicacion() {
-        return paisUbicacion;
+    public Long getIdDepartamento() {
+        return idDepartamento;
     }
 
-    public void setPaisUbicacion(String paisUbicacion) {
-        this.paisUbicacion = paisUbicacion;
+    public void setIdDepartamento(Long idDepartamento) {
+        this.idDepartamento = idDepartamento;
     }
 
-    public String getDepartamentoUbicacion() {
-        return departamentoUbicacion;
+    public Long getIdProvincia() {
+        return idProvincia;
     }
 
-    public void setDepartamentoUbicacion(String departamentoUbicacion) {
-        this.departamentoUbicacion = departamentoUbicacion;
+    public void setIdProvincia(Long idProvincia) {
+        this.idProvincia = idProvincia;
     }
 
-    public String getProvinciaUbicacion() {
-        return provinciaUbicacion;
+    public String getNombreProvincia() {
+        return nombreProvincia;
     }
 
-    public void setProvinciaUbicacion(String provinciaUbicacion) {
-        this.provinciaUbicacion = provinciaUbicacion;
+    public void setNombreProvincia(String nombreProvincia) {
+        this.nombreProvincia = nombreProvincia;
     }
 }

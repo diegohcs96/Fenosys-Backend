@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import pe.partnertech.fenosys.dto.response.general.ImagenResponse;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.dto.response.profile.BasicInfoUserResponse;
-import pe.partnertech.fenosys.model.Imagen;
-import pe.partnertech.fenosys.model.Usuario;
-import pe.partnertech.fenosys.service.IImagenService;
-import pe.partnertech.fenosys.service.IUsuarioService;
+import pe.partnertech.fenosys.model.*;
+import pe.partnertech.fenosys.service.*;
 
 import java.util.Optional;
 
@@ -29,6 +27,15 @@ public class BasicInfoAgricultorController {
 
     @Autowired
     IImagenService imagenService;
+
+    @Autowired
+    IPaisService paisService;
+
+    @Autowired
+    IDepartamentoService departamentoService;
+
+    @Autowired
+    IProvinciaService provinciaService;
 
     @GetMapping("/agricultor/{id}/basicinfo")
     @PreAuthorize("hasRole('ROLE_AGRICULTOR')")
@@ -44,13 +51,18 @@ public class BasicInfoAgricultorController {
             if (imagen_data.isPresent()) {
                 Imagen foto = imagen_data.get();
 
+                Distrito distrito = agricultor.getDistritoUsuario();
+                Provincia provincia = SendProvinciaByDistrito(distrito);
+                Departamento departamento = SendDepartamentoByProvincia(provincia);
+                Pais pais = SendPaisByDepartamento(departamento);
+
                 return new ResponseEntity<>(new BasicInfoUserResponse(
                         agricultor.getNombreUsuario(),
                         agricultor.getApellidoUsuario(),
-                        agricultor.getUbicacionUsuario().getPaisUbicacion(),
-                        agricultor.getUbicacionUsuario().getDepartamentoUbicacion(),
-                        agricultor.getUbicacionUsuario().getProvinciaUbicacion(),
-                        agricultor.getUbicacionUsuario().getDistritoUbicacion(),
+                        pais.getNombrePais(),
+                        departamento.getNombreDepartamento(),
+                        provincia.getNombreProvincia(),
+                        distrito.getNombreDistrito(),
                         agricultor.getEmailUsuario(),
                         new ImagenResponse(foto.getNombreImagen(), foto.getUrlImagen())
                 ), HttpStatus.OK);
@@ -59,6 +71,45 @@ public class BasicInfoAgricultorController {
             }
         } else {
             return new ResponseEntity<>(new MessageResponse("No se encuentra información del perfil del usuario."), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    Pais SendPaisByDepartamento(Departamento departamento) {
+
+        Optional<Pais> pais_data = paisService.BuscarPais_IDDepartamento(departamento.getIdDepartamento());
+
+        if (pais_data.isPresent()) {
+            Pais pais = pais_data.get();
+
+            return pais;
+        } else {
+            return null;
+        }
+    }
+
+    Departamento SendDepartamentoByProvincia(Provincia provincia) {
+
+        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_IDProvincia(provincia.getIdProvincia());
+
+        if (departamento_data.isPresent()) {
+            Departamento departamento = departamento_data.get();
+
+            return departamento;
+        } else {
+            return null;
+        }
+    }
+
+    Provincia SendProvinciaByDistrito(Distrito distrito) {
+
+        Optional<Provincia> provincia_data = provinciaService.BuscarProvincia_IDDistrito(distrito.getIdDistrito());
+
+        if (provincia_data.isPresent()) {
+            Provincia provincia = provincia_data.get();
+
+            return provincia;
+        } else {
+            return null;
         }
     }
 }

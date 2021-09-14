@@ -11,9 +11,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.partnertech.fenosys.dto.request.usuario.UpdateBasicInfoRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
-import pe.partnertech.fenosys.model.Ubicacion;
+import pe.partnertech.fenosys.model.Distrito;
 import pe.partnertech.fenosys.model.Usuario;
-import pe.partnertech.fenosys.service.IUbicacionService;
+import pe.partnertech.fenosys.service.IDistritoService;
 import pe.partnertech.fenosys.service.IUsuarioService;
 
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class UpdateAdministradorBasicInfoController {
     IUsuarioService usuarioService;
 
     @Autowired
-    IUbicacionService ubicacionService;
+    IDistritoService distritoService;
 
     @PutMapping("/admin/{id}/update/basicinfo")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -37,19 +37,16 @@ public class UpdateAdministradorBasicInfoController {
         Optional<Usuario> admin_data = usuarioService.BuscarUsuario_ID(id);
 
         if (admin_data.isPresent()) {
-            Optional<Ubicacion> ubicacion_data = ubicacionService.BuscarUbicacion_PaisyDepartamentoyProvinciayDistrito(
-                    updateBasicInfoRequest.getPaisUsuario(), updateBasicInfoRequest.getDepartamentoUsuario(),
-                    updateBasicInfoRequest.getProvinciaUsuario(), updateBasicInfoRequest.getDistritoUsuario()
-            );
+            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_NombreDistrito(updateBasicInfoRequest.getDistritoUsuario());
 
-            if (ubicacion_data.isPresent()) {
+            if (distrito_data.isPresent()) {
                 Usuario admin = admin_data.get();
 
-                Ubicacion ubicacion = ubicacion_data.get();
+                Distrito distrito = distrito_data.get();
 
                 admin.setNombreUsuario(updateBasicInfoRequest.getNombreUsuario());
                 admin.setApellidoUsuario(updateBasicInfoRequest.getApellidoUsuario());
-                admin.setUbicacionUsuario(ubicacion);
+                admin.setDistritoUsuario(distrito);
 
                 usuarioService.GuardarUsuarioSemiFull(admin);
 

@@ -12,9 +12,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.partnertech.fenosys.dto.request.usuario.UpdateBasicInfoRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
-import pe.partnertech.fenosys.model.Ubicacion;
+import pe.partnertech.fenosys.model.Distrito;
 import pe.partnertech.fenosys.model.Usuario;
-import pe.partnertech.fenosys.service.IUbicacionService;
+import pe.partnertech.fenosys.service.IDistritoService;
 import pe.partnertech.fenosys.service.IUsuarioService;
 
 import java.util.Optional;
@@ -28,7 +28,7 @@ public class UpdateAgricultorBasicInfoController {
     IUsuarioService usuarioService;
 
     @Autowired
-    IUbicacionService ubicacionService;
+    IDistritoService distritoService;
 
     @PutMapping("/agricultor/{id}/update/basicinfo")
     @PreAuthorize("hasRole('ROLE_AGRICULTOR')")
@@ -38,19 +38,16 @@ public class UpdateAgricultorBasicInfoController {
         Optional<Usuario> agricultor_data = usuarioService.BuscarUsuario_ID(id);
 
         if (agricultor_data.isPresent()) {
-            Optional<Ubicacion> ubicacion_data = ubicacionService.BuscarUbicacion_PaisyDepartamentoyProvinciayDistrito(
-                    updateBasicInfoRequest.getPaisUsuario(), updateBasicInfoRequest.getDepartamentoUsuario(),
-                    updateBasicInfoRequest.getProvinciaUsuario(), updateBasicInfoRequest.getDistritoUsuario()
-            );
+            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_NombreDistrito(updateBasicInfoRequest.getDistritoUsuario());
 
-            if (ubicacion_data.isPresent()) {
+            if (distrito_data.isPresent()) {
                 Usuario agricultor = agricultor_data.get();
 
-                Ubicacion ubicacion = ubicacion_data.get();
+                Distrito distrito = distrito_data.get();
 
                 agricultor.setNombreUsuario(updateBasicInfoRequest.getNombreUsuario());
                 agricultor.setApellidoUsuario(updateBasicInfoRequest.getApellidoUsuario());
-                agricultor.setUbicacionUsuario(ubicacion);
+                agricultor.setDistritoUsuario(distrito);
 
                 usuarioService.GuardarUsuarioSemiFull(agricultor);
 

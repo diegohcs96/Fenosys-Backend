@@ -53,7 +53,7 @@ public class SignupAdminController {
     @Autowired
     JavaMailSender mailSender;
     @Autowired
-    IUbicacionService ubicacionService;
+    IDistritoService distritoService;
     @Autowired
     IRolService rolService;
     @Autowired
@@ -150,19 +150,18 @@ public class SignupAdminController {
             Optional<Usuario> admin_data = usuarioService.BuscarUsuario_RestoreToken(restoretoken);
 
             if (admin_data.isPresent()) {
-                Optional<Ubicacion> ubicacion_data = ubicacionService.BuscarUbicacion_PaisyDepartamentoyProvinciayDistrito(
-                        signupAdminRequest.getPaisUsuario(), signupAdminRequest.getDepartamentoUsuario(),
-                        signupAdminRequest.getProvinciaUsuario(), signupAdminRequest.getDistritoUsuario()
+                Optional<Distrito> distrito_data = distritoService.BuscarDistrito_NombreDistrito(
+                        signupAdminRequest.getDistritoUsuario()
                 );
 
-                if (ubicacion_data.isPresent()) {
-                    Ubicacion ubicacion = ubicacion_data.get();
+                if (distrito_data.isPresent()) {
+                    Distrito distrito = distrito_data.get();
                     Usuario admin = admin_data.get();
 
                     admin.setNombreUsuario(signupAdminRequest.getNombreUsuario());
                     admin.setApellidoUsuario(signupAdminRequest.getApellidoUsuario());
                     admin.setPasswordUsuario(passwordEncoder.encode(signupAdminRequest.getPasswordUsuario()));
-                    admin.setUbicacionUsuario(ubicacion);
+                    admin.setDistritoUsuario(distrito);
 
                     //Asignando Rol: Administrador
                     Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_ADMIN);

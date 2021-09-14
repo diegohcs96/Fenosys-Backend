@@ -2,35 +2,35 @@
  * Copyright (c) 2021. Developed by Diego Campos Sandoval.
  */
 
-package pe.partnertech.fenosys.dto.response.general.ubicacion;
+package pe.partnertech.fenosys.model;
 
-public class DistritoResponse {
+import javax.persistence.*;
+import java.io.Serializable;
+
+@Entity
+@Table(name = "distrito")
+public class Distrito implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     //Atributos
-    private Long idProvincia;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_distrito")
     private Long idDistrito;
+
+    @Column(name = "nombre_distrito")
     private String nombreDistrito;
 
-
     //Constructores
-    public DistritoResponse() {
+    public Distrito() {
     }
 
-    public DistritoResponse(Long idProvincia, Long idDistrito, String nombreDistrito) {
-        this.idProvincia = idProvincia;
-        this.idDistrito = idDistrito;
+    public Distrito(String nombreDistrito) {
         this.nombreDistrito = nombreDistrito;
     }
 
     //Getters y Setters
-    public Long getIdProvincia() {
-        return idProvincia;
-    }
-
-    public void setIdProvincia(Long idProvincia) {
-        this.idProvincia = idProvincia;
-    }
-
     public Long getIdDistrito() {
         return idDistrito;
     }

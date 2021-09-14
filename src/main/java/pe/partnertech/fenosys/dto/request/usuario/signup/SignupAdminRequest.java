@@ -10,9 +10,6 @@ public class SignupAdminRequest {
     private String restoretokenUsuario;
     private String nombreUsuario;
     private String apellidoUsuario;
-    private String paisUsuario;
-    private String departamentoUsuario;
-    private String provinciaUsuario;
     private String distritoUsuario;
     private String passwordUsuario;
 
@@ -20,15 +17,11 @@ public class SignupAdminRequest {
     public SignupAdminRequest() {
     }
 
-    public SignupAdminRequest(String restoretokenUsuario, String nombreUsuario, String apellidoUsuario, String paisUsuario,
-                              String departamentoUsuario, String provinciaUsuario, String distritoUsuario,
+    public SignupAdminRequest(String restoretokenUsuario, String nombreUsuario, String apellidoUsuario, String distritoUsuario,
                               String passwordUsuario) {
         this.restoretokenUsuario = restoretokenUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
-        this.paisUsuario = paisUsuario;
-        this.departamentoUsuario = departamentoUsuario;
-        this.provinciaUsuario = provinciaUsuario;
         this.distritoUsuario = distritoUsuario;
         this.passwordUsuario = passwordUsuario;
     }
@@ -56,30 +49,6 @@ public class SignupAdminRequest {
 
     public void setApellidoUsuario(String apellidoUsuario) {
         this.apellidoUsuario = apellidoUsuario;
-    }
-
-    public String getPaisUsuario() {
-        return paisUsuario;
-    }
-
-    public void setPaisUsuario(String paisUsuario) {
-        this.paisUsuario = paisUsuario;
-    }
-
-    public String getDepartamentoUsuario() {
-        return departamentoUsuario;
-    }
-
-    public void setDepartamentoUsuario(String departamentoUsuario) {
-        this.departamentoUsuario = departamentoUsuario;
-    }
-
-    public String getProvinciaUsuario() {
-        return provinciaUsuario;
-    }
-
-    public void setProvinciaUsuario(String provinciaUsuario) {
-        this.provinciaUsuario = provinciaUsuario;
     }
 
     public String getDistritoUsuario() {

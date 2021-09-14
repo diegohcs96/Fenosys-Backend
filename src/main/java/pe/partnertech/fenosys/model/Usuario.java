@@ -47,10 +47,10 @@ public class Usuario implements Serializable {
     private Imagen imagenUsuario;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "usuario_ubicacion",
+    @JoinTable(name = "usuario_distrito",
             joinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"),
-            inverseJoinColumns = @JoinColumn(name = "id_ubicacion", referencedColumnName = "id_ubicacion"))
-    private Ubicacion ubicacionUsuario;
+            inverseJoinColumns = @JoinColumn(name = "id_distrito", referencedColumnName = "id_distrito"))
+    private Distrito distritoUsuario;
 
     @ManyToMany(cascade =
             {
@@ -86,13 +86,13 @@ public class Usuario implements Serializable {
     }
 
     public Usuario(String nombreUsuario, String apellidoUsuario, String emailUsuario, String usernameUsuario,
-                   String passwordUsuario, Ubicacion ubicacionUsuario) {
+                   String passwordUsuario, Distrito distritoUsuario) {
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
         this.emailUsuario = emailUsuario;
         this.usernameUsuario = usernameUsuario;
         this.passwordUsuario = passwordUsuario;
-        this.ubicacionUsuario = ubicacionUsuario;
+        this.distritoUsuario = distritoUsuario;
     }
 
     //Getters y Setters
@@ -160,12 +160,12 @@ public class Usuario implements Serializable {
         this.imagenUsuario = imagenUsuario;
     }
 
-    public Ubicacion getUbicacionUsuario() {
-        return ubicacionUsuario;
+    public Distrito getDistritoUsuario() {
+        return distritoUsuario;
     }
 
-    public void setUbicacionUsuario(Ubicacion ubicacionUsuario) {
-        this.ubicacionUsuario = ubicacionUsuario;
+    public void setDistritoUsuario(Distrito distritoUsuario) {
+        this.distritoUsuario = distritoUsuario;
     }
 
     public Set<Rol> getRolUsuario() {

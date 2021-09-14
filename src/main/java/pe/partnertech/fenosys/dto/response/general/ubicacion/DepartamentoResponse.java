@@ -7,33 +7,42 @@ package pe.partnertech.fenosys.dto.response.general.ubicacion;
 public class DepartamentoResponse {
 
     //Atributos
-    private String paisUbicacion;
-
-    private String departamentoUbicacion;
+    private Long idPais;
+    private Long idDepartamento;
+    private String nombreDepartamento;
 
     //Constructores
     public DepartamentoResponse() {
     }
 
-    public DepartamentoResponse(String paisUbicacion, String departamentoUbicacion) {
-        this.paisUbicacion = paisUbicacion;
-        this.departamentoUbicacion = departamentoUbicacion;
+    public DepartamentoResponse(Long idPais, Long idDepartamento, String nombreDepartamento) {
+        this.idPais = idPais;
+        this.idDepartamento = idDepartamento;
+        this.nombreDepartamento = nombreDepartamento;
     }
 
     //Getters y Setters
-    public String getPaisUbicacion() {
-        return paisUbicacion;
+    public Long getIdPais() {
+        return idPais;
     }
 
-    public void setPaisUbicacion(String paisUbicacion) {
-        this.paisUbicacion = paisUbicacion;
+    public void setIdPais(Long idPais) {
+        this.idPais = idPais;
     }
 
-    public String getDepartamentoUbicacion() {
-        return departamentoUbicacion;
+    public Long getIdDepartamento() {
+        return idDepartamento;
     }
 
-    public void setDepartamentoUbicacion(String departamentoUbicacion) {
-        this.departamentoUbicacion = departamentoUbicacion;
+    public void setIdDepartamento(Long idDepartamento) {
+        this.idDepartamento = idDepartamento;
+    }
+
+    public String getNombreDepartamento() {
+        return nombreDepartamento;
+    }
+
+    public void setNombreDepartamento(String nombreDepartamento) {
+        this.nombreDepartamento = nombreDepartamento;
     }
 }

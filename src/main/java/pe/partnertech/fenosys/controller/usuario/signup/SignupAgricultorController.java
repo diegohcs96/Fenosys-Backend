@@ -15,13 +15,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.partnertech.fenosys.dto.request.usuario.signup.SignupAgricultorRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.enums.RolNombre;
+import pe.partnertech.fenosys.model.Distrito;
 import pe.partnertech.fenosys.model.Imagen;
 import pe.partnertech.fenosys.model.Rol;
-import pe.partnertech.fenosys.model.Ubicacion;
 import pe.partnertech.fenosys.model.Usuario;
+import pe.partnertech.fenosys.service.IDistritoService;
 import pe.partnertech.fenosys.service.IImagenService;
 import pe.partnertech.fenosys.service.IRolService;
-import pe.partnertech.fenosys.service.IUbicacionService;
 import pe.partnertech.fenosys.service.IUsuarioService;
 
 import java.io.InputStream;
@@ -47,10 +47,10 @@ public class SignupAgricultorController {
     IRolService rolService;
 
     @Autowired
-    IUbicacionService ubicacionService;
+    IImagenService imagenService;
 
     @Autowired
-    IImagenService imagenService;
+    IDistritoService distritoService;
 
     @PostMapping("/agricultor/signup")
     public ResponseEntity<?> SignUpPostulante(@RequestPart("usuario") SignupAgricultorRequest signupAgricultorRequest,
@@ -61,13 +61,10 @@ public class SignupAgricultorController {
         } else if (usuarioService.ValidarEmail(signupAgricultorRequest.getEmailUsuario())) {
             return new ResponseEntity<>(new MessageResponse("El Email ya se encuentra en uso."), HttpStatus.BAD_REQUEST);
         } else {
-            Optional<Ubicacion> ubicacion_data = ubicacionService.BuscarUbicacion_PaisyDepartamentoyProvinciayDistrito(
-                    signupAgricultorRequest.getPaisUsuario(), signupAgricultorRequest.getDepartamentoUsuario(),
-                    signupAgricultorRequest.getProvinciaUsuario(), signupAgricultorRequest.getDistritoUsuario()
-            );
+            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_NombreDistrito(signupAgricultorRequest.getDistritoUsuario());
 
-            if (ubicacion_data.isPresent()) {
-                Ubicacion ubicacion = ubicacion_data.get();
+            if (distrito_data.isPresent()) {
+                Distrito distrito = distrito_data.get();
 
                 Usuario agricultor =
                         new Usuario(
@@ -76,7 +73,7 @@ public class SignupAgricultorController {
                                 signupAgricultorRequest.getEmailUsuario(),
                                 signupAgricultorRequest.getUsernameUsuario(),
                                 passwordEncoder.encode(signupAgricultorRequest.getPasswordUsuario()),
-                                ubicacion
+                                distrito
                         );
 
                 //Asignando Rol: Agricultor

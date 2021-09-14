@@ -7,22 +7,32 @@ package pe.partnertech.fenosys.dto.response.general.ubicacion;
 public class PaisResponse {
 
     //Atributos
-    private String paisUbicacion;
+    private Long idPais;
+    private String nombrePais;
 
     //Constructores
     public PaisResponse() {
     }
 
-    public PaisResponse(String paisUbicacion) {
-        this.paisUbicacion = paisUbicacion;
+    public PaisResponse(Long idPais, String nombrePais) {
+        this.idPais = idPais;
+        this.nombrePais = nombrePais;
     }
 
     //Getters y Setters
-    public String getPaisUbicacion() {
-        return paisUbicacion;
+    public Long getIdPais() {
+        return idPais;
     }
 
-    public void setPaisUbicacion(String paisUbicacion) {
-        this.paisUbicacion = paisUbicacion;
+    public void setIdPais(Long idPais) {
+        this.idPais = idPais;
+    }
+
+    public String getNombrePais() {
+        return nombrePais;
+    }
+
+    public void setNombrePais(String nombrePais) {
+        this.nombrePais = nombrePais;
     }
 }
