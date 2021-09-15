@@ -18,6 +18,13 @@ public interface IDepartamentoDAO extends JpaRepository<Departamento, Long> {
     @Query("SELECT d FROM Departamento d")
     Set<Departamento> findAllDepartamentos();
 
+    @Query(value = "SELECT dp.*, p.*, d.* " +
+            "FROM departamentos_pais dp " +
+            "JOIN pais p ON dp.id_pais = p.id_pais " +
+            "JOIN departamento d ON dp.id_departamento = d.id_departamento " +
+            "WHERE dp.id_pais = ?1", nativeQuery = true)
+    Set<Departamento> findDepartamentosByIDPais(Long id);
+
     @Query(value = "SELECT pd.*, d.*, p.* " +
             "FROM provincias_departamento pd " +
             "JOIN departamento d ON pd.id_departamento = d.id_departamento " +

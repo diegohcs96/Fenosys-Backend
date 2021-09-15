@@ -13,5 +13,7 @@ public interface IDistritoService {
 
     Set<Distrito> MostrarDistritos();
 
+    Set<Distrito> BuscarDistritos_IDProvincia(Long id);
+
     Optional<Distrito> BuscarDistrito_ID(Long id);
 }

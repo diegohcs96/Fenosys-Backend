@@ -27,6 +27,11 @@ public class ProvinciaServiceImpl implements IProvinciaService {
     }
 
     @Override
+    public Set<Provincia> BuscarProvincias_IDDepartamento(Long id) {
+        return data.findProvinciasByIDDepartamento(id);
+    }
+
+    @Override
     public Optional<Provincia> BuscarProvincia_IDDistrito(Long id) {
         return data.findProvinciaByIDDistrito(id);
     }

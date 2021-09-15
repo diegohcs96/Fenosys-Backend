@@ -7,10 +7,7 @@ package pe.partnertech.fenosys.controller.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pe.partnertech.fenosys.dto.response.general.ubicacion.DepartamentoResponse;
 import pe.partnertech.fenosys.dto.response.general.ubicacion.DistritoResponse;
 import pe.partnertech.fenosys.dto.response.general.ubicacion.PaisResponse;
@@ -79,6 +76,24 @@ public class UbicacionController {
         return new ResponseEntity<>(lista_departamentos, HttpStatus.OK);
     }
 
+    @GetMapping("/ubicacion/find/departamentos/from_pais/{id}")
+    public ResponseEntity<?> BuscarDepartamentosPorPais(@PathVariable("id") Long id) {
+
+        Set<DepartamentoResponse> lista_departamentos = new HashSet<>();
+
+        departamentoService.BuscarDepartamentos_IDPais(id).forEach(
+                departamento -> {
+                    lista_departamentos.add(
+                            new DepartamentoResponse(
+                                    BuscarPaisByDepartamento(departamento.getIdDepartamento()),
+                                    departamento.getIdDepartamento(),
+                                    departamento.getNombreDepartamento()
+                            ));
+                });
+
+        return new ResponseEntity<>(lista_departamentos, HttpStatus.OK);
+    }
+
     Long BuscarPaisByDepartamento(Long iddepartamento) {
 
         Optional<Pais> pais_data = paisService.BuscarPais_IDDepartamento(iddepartamento);
@@ -110,6 +125,24 @@ public class UbicacionController {
         return new ResponseEntity<>(lista_provincias, HttpStatus.OK);
     }
 
+    @GetMapping("/ubicacion/find/provincias/from_departamento/{id}")
+    public ResponseEntity<?> BuscarProvinciasPorDepartamento(@PathVariable("id") Long id) {
+
+        Set<ProvinciaResponse> lista_provincias = new HashSet<>();
+
+        provinciaService.BuscarProvincias_IDDepartamento(id).forEach(
+                provincia -> {
+                    lista_provincias.add(
+                            new ProvinciaResponse(
+                                    BuscarDepartamentoByProvincia(provincia.getIdProvincia()),
+                                    provincia.getIdProvincia(),
+                                    provincia.getNombreProvincia()
+                            ));
+                });
+
+        return new ResponseEntity<>(lista_provincias, HttpStatus.OK);
+    }
+
     Long BuscarDepartamentoByProvincia(Long idprovincia) {
 
         Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_IDProvincia(idprovincia);
@@ -129,6 +162,24 @@ public class UbicacionController {
         Set<DistritoResponse> lista_distritos = new HashSet<>();
 
         distritoService.MostrarDistritos().forEach(
+                distrito -> {
+                    lista_distritos.add(
+                            new DistritoResponse(
+                                    BuscarProvinciaByDistrito(distrito.getIdDistrito()),
+                                    distrito.getIdDistrito(),
+                                    distrito.getNombreDistrito()
+                            ));
+                });
+
+        return new ResponseEntity<>(lista_distritos, HttpStatus.OK);
+    }
+
+    @GetMapping("/ubicacion/find/distritos/from_provincia/{id}")
+    public ResponseEntity<?> BuscarDistritosPorProvincia(@PathVariable("id") Long id) {
+
+        Set<DistritoResponse> lista_distritos = new HashSet<>();
+
+        distritoService.BuscarDistritos_IDProvincia(id).forEach(
                 distrito -> {
                     lista_distritos.add(
                             new DistritoResponse(

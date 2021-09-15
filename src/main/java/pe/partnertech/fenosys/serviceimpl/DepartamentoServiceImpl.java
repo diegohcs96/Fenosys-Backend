@@ -27,6 +27,11 @@ public class DepartamentoServiceImpl implements IDepartamentoService {
     }
 
     @Override
+    public Set<Departamento> BuscarDepartamentos_IDPais(Long id) {
+        return data.findDepartamentosByIDPais(id);
+    }
+
+    @Override
     public Optional<Departamento> BuscarDepartamento_IDProvincia(Long id) {
         return data.findDeparamentoByIDProvincia(id);
     }
