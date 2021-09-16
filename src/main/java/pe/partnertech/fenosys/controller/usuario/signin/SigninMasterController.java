@@ -56,7 +56,7 @@ public class SigninMasterController {
 
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_FENOSIS"))) {
+            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
                 return new ResponseEntity<>(new JwtResponse(
                         jwt,
                         userDetails.getIdUsuario(),

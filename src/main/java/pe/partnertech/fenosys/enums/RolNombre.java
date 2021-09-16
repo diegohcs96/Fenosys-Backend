@@ -5,5 +5,5 @@
 package pe.partnertech.fenosys.enums;
 
 public enum RolNombre {
-    ROLE_ADMIN, ROLE_AGRICULTOR, ROLE_FENOSIS
+    ROLE_MASTER, ROLE_ADMIN, ROLE_AGRICULTOR
 }

@@ -1,7 +1,7 @@
 -------------------ROL QUERY----------------
-INSERT INTO rol (rol) VALUES ('ROLE_FENOSIS');
-INSERT INTO rol (rol) VALUES ('ROLE_AGRICULTOR');
+INSERT INTO rol (rol) VALUES ('ROLE_MASTER');
 INSERT INTO rol (rol) VALUES ('ROLE_ADMIN');
+INSERT INTO rol (rol) VALUES ('ROLE_AGRICULTOR');
 --------------------------------------------
 
 ----------------------MASTER QUERY--------------------------------
