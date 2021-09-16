@@ -9,7 +9,7 @@ public class SignupAgricultorRequest {
     //Atributos
     private String nombreUsuario;
     private String apellidoUsuario;
-    private Long iddistritoUsuario;
+    private Long distritoUsuario;
     private String emailUsuario;
     private String usernameUsuario;
     private String passwordUsuario;
@@ -18,11 +18,11 @@ public class SignupAgricultorRequest {
     public SignupAgricultorRequest() {
     }
 
-    public SignupAgricultorRequest(String nombreUsuario, String apellidoUsuario, Long iddistritoUsuario,
+    public SignupAgricultorRequest(String nombreUsuario, String apellidoUsuario, Long distritoUsuario,
                                    String emailUsuario, String usernameUsuario, String passwordUsuario) {
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
-        this.iddistritoUsuario = iddistritoUsuario;
+        this.distritoUsuario = distritoUsuario;
         this.emailUsuario = emailUsuario;
         this.usernameUsuario = usernameUsuario;
         this.passwordUsuario = passwordUsuario;
@@ -45,12 +45,12 @@ public class SignupAgricultorRequest {
         this.apellidoUsuario = apellidoUsuario;
     }
 
-    public Long getIddistritoUsuario() {
-        return iddistritoUsuario;
+    public Long getDistritoUsuario() {
+        return distritoUsuario;
     }
 
-    public void setIddistritoUsuario(Long iddistritoUsuario) {
-        this.iddistritoUsuario = iddistritoUsuario;
+    public void setDistritoUsuario(Long distritoUsuario) {
+        this.distritoUsuario = distritoUsuario;
     }
 
     public String getEmailUsuario() {

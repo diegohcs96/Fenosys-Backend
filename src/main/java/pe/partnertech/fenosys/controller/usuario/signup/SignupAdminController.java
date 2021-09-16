@@ -151,7 +151,7 @@ public class SignupAdminController {
 
             if (admin_data.isPresent()) {
                 Optional<Distrito> distrito_data = distritoService.BuscarDistrito_ID(
-                        signupAdminRequest.getIddistritoUsuario()
+                        signupAdminRequest.getDistritoUsuario()
                 );
 
                 if (distrito_data.isPresent()) {

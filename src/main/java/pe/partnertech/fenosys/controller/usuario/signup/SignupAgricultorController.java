@@ -61,7 +61,7 @@ public class SignupAgricultorController {
         } else if (usuarioService.ValidarEmail(signupAgricultorRequest.getEmailUsuario())) {
             return new ResponseEntity<>(new MessageResponse("El Email ya se encuentra en uso."), HttpStatus.BAD_REQUEST);
         } else {
-            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_ID(signupAgricultorRequest.getIddistritoUsuario());
+            Optional<Distrito> distrito_data = distritoService.BuscarDistrito_ID(signupAgricultorRequest.getDistritoUsuario());
 
             if (distrito_data.isPresent()) {
                 Distrito distrito = distrito_data.get();

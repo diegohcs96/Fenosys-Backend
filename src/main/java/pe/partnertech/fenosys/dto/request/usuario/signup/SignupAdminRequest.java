@@ -10,7 +10,7 @@ public class SignupAdminRequest {
     private String restoretokenUsuario;
     private String nombreUsuario;
     private String apellidoUsuario;
-    private Long iddistritoUsuario;
+    private Long distritoUsuario;
     private String passwordUsuario;
 
     //Constructores
@@ -18,11 +18,11 @@ public class SignupAdminRequest {
     }
 
     public SignupAdminRequest(String restoretokenUsuario, String nombreUsuario, String apellidoUsuario,
-                              Long iddistritoUsuario, String passwordUsuario) {
+                              Long distritoUsuario, String passwordUsuario) {
         this.restoretokenUsuario = restoretokenUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
-        this.iddistritoUsuario = iddistritoUsuario;
+        this.distritoUsuario = distritoUsuario;
         this.passwordUsuario = passwordUsuario;
     }
 
@@ -51,12 +51,12 @@ public class SignupAdminRequest {
         this.apellidoUsuario = apellidoUsuario;
     }
 
-    public Long getIddistritoUsuario() {
-        return iddistritoUsuario;
+    public Long getDistritoUsuario() {
+        return distritoUsuario;
     }
 
-    public void setIddistritoUsuario(Long iddistritoUsuario) {
-        this.iddistritoUsuario = iddistritoUsuario;
+    public void setDistritoUsuario(Long distritoUsuario) {
+        this.distritoUsuario = distritoUsuario;
     }
 
     public String getPasswordUsuario() {
