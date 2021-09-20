@@ -142,7 +142,7 @@ public class SignupAdminController {
     public ResponseEntity<?> SignupAdminProcess(@RequestPart("usuario") SignupAdminRequest signupAdminRequest,
                                                 @RequestPart("foto") MultipartFile foto) {
 
-        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(signupAdminRequest.getRestoretokenUsuario());
+        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(signupAdminRequest.getRequesttokenUsuario());
 
         if (restoretoken_data.isPresent()) {
             RestoreToken restoretoken = restoretoken_data.get();

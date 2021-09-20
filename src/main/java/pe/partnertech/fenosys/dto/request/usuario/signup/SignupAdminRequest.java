@@ -7,7 +7,7 @@ package pe.partnertech.fenosys.dto.request.usuario.signup;
 public class SignupAdminRequest {
 
     //Atributos
-    private String restoretokenUsuario;
+    private String requesttokenUsuario;
     private String nombreUsuario;
     private String apellidoUsuario;
     private Long distritoUsuario;
@@ -17,9 +17,9 @@ public class SignupAdminRequest {
     public SignupAdminRequest() {
     }
 
-    public SignupAdminRequest(String restoretokenUsuario, String nombreUsuario, String apellidoUsuario,
+    public SignupAdminRequest(String requesttokenUsuario, String nombreUsuario, String apellidoUsuario,
                               Long distritoUsuario, String passwordUsuario) {
-        this.restoretokenUsuario = restoretokenUsuario;
+        this.requesttokenUsuario = requesttokenUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
         this.distritoUsuario = distritoUsuario;
@@ -27,12 +27,12 @@ public class SignupAdminRequest {
     }
 
     //Getters y Setters
-    public String getRestoretokenUsuario() {
-        return restoretokenUsuario;
+    public String getRequesttokenUsuario() {
+        return requesttokenUsuario;
     }
 
-    public void setRestoretokenUsuario(String restoretokenUsuario) {
-        this.restoretokenUsuario = restoretokenUsuario;
+    public void setRequesttokenUsuario(String requesttokenUsuario) {
+        this.requesttokenUsuario = requesttokenUsuario;
     }
 
     public String getNombreUsuario() {
