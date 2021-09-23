@@ -64,7 +64,7 @@ public class SignupAdminController {
     private String baseurl;
 
     @PostMapping("/admin/signup_request")
-    @PreAuthorize("hasRole('ROLE_FENOSIS')")
+    @PreAuthorize("hasRole('ROLE_MASTER')")
     public ResponseEntity<?> SignupAdminRequest(@RequestBody RestorePasswordRequest restorePasswordRequest,
                                                 HttpServletRequest request) {
 
