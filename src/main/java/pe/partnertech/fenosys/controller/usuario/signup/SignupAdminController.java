@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import pe.partnertech.fenosys.dto.request.restore_password.RestorePasswordRequest;
 import pe.partnertech.fenosys.dto.request.usuario.signup.SignupAdminRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
@@ -29,16 +31,14 @@ import pe.partnertech.fenosys.util.UtilityFenologia;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @RestController
@@ -62,6 +62,8 @@ public class SignupAdminController {
     IImagenService imagenService;
     @Value("${front.baseurl}")
     private String baseurl;
+    @Autowired
+    TemplateEngine templateEngine;
 
     @PostMapping("/admin/signup_request")
     @PreAuthorize("hasRole('ROLE_MASTER')")
@@ -201,7 +203,7 @@ public class SignupAdminController {
                             imagenService.GuardarImagen(imagen);
                             admin.setImagenUsuario(imagen);
                         } else {
-                            InputStream fotoStream = getClass().getResourceAsStream("/AdminUser.png");
+                            InputStream fotoStream = getClass().getResourceAsStream("/images/AdminUser.png");
                             byte[] fotofile = IOUtils.toByteArray(fotoStream);
 
                             Imagen imagen = new Imagen(
@@ -249,6 +251,13 @@ public class SignupAdminController {
 
         Usuario admin = admin_data.get();
 
+        Context context = new Context();
+        Map<String, Object> model = new HashMap<>();
+        model.put("username", admin.getUsernameUsuario());
+        model.put("url", url);
+        context.setVariables(model);
+        String html_template = templateEngine.process("adminrequest-mailtemplate", context);
+
         String contenido =
                 "<h2>Hola,</h1>" +
                         "<p>Gracias por realizar tu solicitud de Registro de Usuario.</p>" +
@@ -261,7 +270,7 @@ public class SignupAdminController {
                         "<a href=" + url + ">Completar mi registro</a>";
 
         helper.setSubject(asunto);
-        helper.setText(contenido, true);
+        helper.setText(html_template, true);
 
         mailSender.send(message);
     }

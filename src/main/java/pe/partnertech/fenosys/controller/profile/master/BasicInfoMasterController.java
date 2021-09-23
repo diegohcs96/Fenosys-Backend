@@ -52,7 +52,7 @@ public class BasicInfoMasterController {
                             .path(foto.getNombreImagen())
                             .toUriString();
 
-                    InputStream fotoStream = getClass().getResourceAsStream("/MasterUser.png");
+                    InputStream fotoStream = getClass().getResourceAsStream("/images/MasterUser.png");
                     byte[] fotofile = IOUtils.toByteArray(fotoStream);
 
                     foto.setUrlImagen(urlfoto);
