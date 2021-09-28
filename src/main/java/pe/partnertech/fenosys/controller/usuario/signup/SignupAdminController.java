@@ -31,7 +31,6 @@ import pe.partnertech.fenosys.util.UtilityFenologia;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,10 +59,10 @@ public class SignupAdminController {
     PasswordEncoder passwordEncoder;
     @Autowired
     IImagenService imagenService;
-    @Value("${front.baseurl}")
-    private String baseurl;
     @Autowired
     TemplateEngine templateEngine;
+    @Value("${front.baseurl}")
+    private String baseurl;
 
     @PostMapping("/admin/signup_request")
     @PreAuthorize("hasRole('ROLE_MASTER')")

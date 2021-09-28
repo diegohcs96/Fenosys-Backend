@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2021. Developed by Diego Campos Sandoval.
+ */
+
 package pe.partnertech.fenosys.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
