@@ -4,22 +4,17 @@
 
 package pe.partnertech.fenosys.controller.profile.master;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.partnertech.fenosys.dto.response.general.ImagenResponse;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.dto.response.profile.BasicInfoUserResponse;
-import pe.partnertech.fenosys.model.Imagen;
-import pe.partnertech.fenosys.model.Usuario;
-import pe.partnertech.fenosys.service.IImagenService;
-import pe.partnertech.fenosys.service.IUsuarioService;
+import pe.partnertech.fenosys.model.*;
+import pe.partnertech.fenosys.service.*;
 
-import java.io.InputStream;
 import java.util.Optional;
 
 @RestController
@@ -33,6 +28,15 @@ public class BasicInfoMasterController {
     @Autowired
     IImagenService imagenService;
 
+    @Autowired
+    IPaisService paisService;
+
+    @Autowired
+    IDepartamentoService departamentoService;
+
+    @Autowired
+    IProvinciaService provinciaService;
+
     @GetMapping("/master/{id}/basicinfo")
     @PreAuthorize("hasRole('ROLE_FENOSIS')")
     public ResponseEntity<?> MasterProfile(@PathVariable("id") Long id) {
@@ -42,71 +46,43 @@ public class BasicInfoMasterController {
         if (master_data.isPresent()) {
             Usuario master = master_data.get();
 
-            if (master.getImagenUsuario().getNombreImagen().equals("") && master.getImagenUsuario().getTipoarchivoImagen().equals("")) {
-                try {
-                    Imagen foto = master.getImagenUsuario();
+            Distrito distrito = master.getDistritoUsuario();
+            Provincia provincia = BuscarProvincia_Distrito(distrito);
+            Departamento departamento = BuscarDepartamento_Provincia(provincia);
+            Pais pais = BuscarPais_Departamento(departamento);
 
-                    String urlfoto = ServletUriComponentsBuilder
-                            .fromCurrentContextPath()
-                            .path("/photos/")
-                            .path(foto.getNombreImagen())
-                            .toUriString();
-
-                    InputStream fotoStream = getClass().getResourceAsStream("/images/MasterUser.png");
-                    byte[] fotofile = IOUtils.toByteArray(fotoStream);
-
-                    foto.setUrlImagen(urlfoto);
-                    foto.setArchivoImagen(fotofile);
-
-                    imagenService.GuardarImagen(foto);
-
-                    master.setImagenUsuario(foto);
-                    usuarioService.GuardarUsuarioSemiFull(master);
-
-                } catch (Exception e) {
-                    return new ResponseEntity<>(new MessageResponse("Error al cargar la imagen " + e), HttpStatus.EXPECTATION_FAILED);
-                }
-
-                Optional<Imagen> imagen_data = imagenService.BuscarImagen_ID(master.getImagenUsuario().getIdImagen());
-
-                if (imagen_data.isPresent()) {
-                    Imagen foto = imagen_data.get();
-
-                    return new ResponseEntity<>(new BasicInfoUserResponse(
-                            master.getNombreUsuario(),
-                            master.getApellidoUsuario(),
-                            null,
-                            null,
-                            null,
-                            null,
-                            master.getEmailUsuario(),
-                            new ImagenResponse(foto.getNombreImagen(), foto.getUrlImagen())
-                    ), HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(new MessageResponse("No se encuentra la foto de perfil del usuario."), HttpStatus.NOT_FOUND);
-                }
-            } else {
-                Optional<Imagen> imagen_data = imagenService.BuscarImagen_ID(master.getImagenUsuario().getIdImagen());
-
-                if (imagen_data.isPresent()) {
-                    Imagen foto = imagen_data.get();
-
-                    return new ResponseEntity<>(new BasicInfoUserResponse(
-                            master.getNombreUsuario(),
-                            master.getApellidoUsuario(),
-                            null,
-                            null,
-                            null,
-                            null,
-                            master.getEmailUsuario(),
-                            new ImagenResponse(foto.getNombreImagen(), foto.getUrlImagen())
-                    ), HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(new MessageResponse("No se encuentra la foto de perfil del usuario."), HttpStatus.NOT_FOUND);
-                }
-            }
+            return new ResponseEntity<>(new BasicInfoUserResponse(
+                    master.getNombreUsuario(),
+                    master.getApellidoUsuario(),
+                    pais.getNombrePais(),
+                    departamento.getNombreDepartamento(),
+                    provincia.getNombreProvincia(),
+                    distrito.getNombreDistrito(),
+                    master.getEmailUsuario(),
+                    new ImagenResponse(
+                            master.getImagenUsuario().getNombreImagen(),
+                            master.getImagenUsuario().getUrlImagen())
+            ), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new MessageResponse("No se encuentra información del perfil del usuario."), HttpStatus.NOT_FOUND);
         }
+    }
+
+    Provincia BuscarProvincia_Distrito(Distrito distrito) {
+        Optional<Provincia> provincia_data = provinciaService.BuscarProvincia_IDDistrito(distrito.getIdDistrito());
+
+        return provincia_data.orElse(null);
+    }
+
+    Departamento BuscarDepartamento_Provincia(Provincia provincia) {
+        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_IDProvincia(provincia.getIdProvincia());
+
+        return departamento_data.orElse(null);
+    }
+
+    Pais BuscarPais_Departamento(Departamento departamento) {
+        Optional<Pais> pais_data = paisService.BuscarPais_IDDepartamento(departamento.getIdDepartamento());
+
+        return pais_data.orElse(null);
     }
 }

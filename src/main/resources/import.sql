@@ -8,10 +8,6 @@ INSERT INTO rol (rol) VALUES ('ROLE_AGRICULTOR');
 INSERT INTO usuario(nombre_usuario, apellido_usuario, email_usuario, username_usuario, password_usuario) VALUES ('Fenosys', 'Master', 'master_fenosys@fenosys.com', 'master_fenosys', '$2a$10$PGh4RdTbxvsaRSlK8TCnx.5qZKyPd0E.lIKPoOwGLu7sRZwsB/XQy');
 
 INSERT INTO usuarios_roles(id_usuario, id_rol) VALUES (1,1);
-
-INSERT INTO imagen(nombre_imagen, tipoarchivo_imagen) VALUES ('52d5d68a-8e46-452e-a7ca-23dc4c48007c-4daa2559-d9c6-4ce9-9ac3-7894d1fbce2b.png', 'image/png');
-
-INSERT INTO usuario_imagen(id_usuario, id_imagen) VALUES (1,1);
 ------------------------------------------------------------------
 
 --------------------UBIGEO QUERY----------------------------------
