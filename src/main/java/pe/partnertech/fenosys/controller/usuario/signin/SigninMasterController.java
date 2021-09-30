@@ -69,7 +69,7 @@ public class SigninMasterController {
                             .path(nombrefoto)
                             .toUriString();
 
-                    InputStream fotoStream = getClass().getResourceAsStream("/images/MasterUser.png");
+                    InputStream fotoStream = getClass().getResourceAsStream("/static/img/MasterUser.png");
                     byte[] fotofile = IOUtils.toByteArray(fotoStream);
 
                     Imagen imagen = new Imagen(
