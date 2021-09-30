@@ -74,42 +74,21 @@ public class BasicInfoAgricultorController {
         }
     }
 
-    Pais SendPaisByDepartamento(Departamento departamento) {
+    Provincia SendProvinciaByDistrito(Distrito distrito) {
+        Optional<Provincia> provincia_data = provinciaService.BuscarProvincia_IDDistrito(distrito.getIdDistrito());
 
-        Optional<Pais> pais_data = paisService.BuscarPais_IDDepartamento(departamento.getIdDepartamento());
-
-        if (pais_data.isPresent()) {
-            Pais pais = pais_data.get();
-
-            return pais;
-        } else {
-            return null;
-        }
+        return provincia_data.orElse(null);
     }
 
     Departamento SendDepartamentoByProvincia(Provincia provincia) {
-
         Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_IDProvincia(provincia.getIdProvincia());
 
-        if (departamento_data.isPresent()) {
-            Departamento departamento = departamento_data.get();
-
-            return departamento;
-        } else {
-            return null;
-        }
+        return departamento_data.orElse(null);
     }
 
-    Provincia SendProvinciaByDistrito(Distrito distrito) {
+    Pais SendPaisByDepartamento(Departamento departamento) {
+        Optional<Pais> pais_data = paisService.BuscarPais_IDDepartamento(departamento.getIdDepartamento());
 
-        Optional<Provincia> provincia_data = provinciaService.BuscarProvincia_IDDistrito(distrito.getIdDistrito());
-
-        if (provincia_data.isPresent()) {
-            Provincia provincia = provincia_data.get();
-
-            return provincia;
-        } else {
-            return null;
-        }
+        return pais_data.orElse(null);
     }
 }
