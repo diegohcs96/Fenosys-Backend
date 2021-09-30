@@ -114,7 +114,7 @@ public class SignupAgricultorController {
                         imagenService.GuardarImagen(imagen);
                         agricultor.setImagenUsuario(imagen);
                     } else {
-                        InputStream fotoStream = getClass().getResourceAsStream("/images/AgroUser.png");
+                        InputStream fotoStream = getClass().getResourceAsStream("/static/img/AgroUser.png");
                         byte[] fotofile = IOUtils.toByteArray(fotoStream);
 
                         Imagen imagen = new Imagen(

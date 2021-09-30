@@ -64,6 +64,9 @@ public class SignupAdminController {
     @Value("${front.baseurl}")
     private String baseurl;
 
+    @Value("${image.mail.logourl}")
+    private String logomail_imageUrl;
+
     @PostMapping("/admin/signup_request")
     @PreAuthorize("hasRole('ROLE_MASTER')")
     public ResponseEntity<?> SignupAdminRequest(@RequestBody RestorePasswordRequest restorePasswordRequest,
@@ -202,7 +205,7 @@ public class SignupAdminController {
                             imagenService.GuardarImagen(imagen);
                             admin.setImagenUsuario(imagen);
                         } else {
-                            InputStream fotoStream = getClass().getResourceAsStream("/images/AdminUser.png");
+                            InputStream fotoStream = getClass().getResourceAsStream("/static/img/AdminUser.png");
                             byte[] fotofile = IOUtils.toByteArray(fotoStream);
 
                             Imagen imagen = new Imagen(
@@ -229,10 +232,10 @@ public class SignupAdminController {
                     return new ResponseEntity<>(new MessageResponse("Ocurrio un error al buscar su Ubicación."), HttpStatus.NOT_FOUND);
                 }
             } else {
-                return new ResponseEntity<>(new MessageResponse("Ocurrió un error al buscar su Ubicación."), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new MessageResponse("Ocurrió un error durante el proceso de Registro."), HttpStatus.NOT_FOUND);
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("Ocurrió un error durante el proceso de Registro."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("El proceso de registro ya no se encuentra disponible."), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -254,7 +257,11 @@ public class SignupAdminController {
         Map<String, Object> model = new HashMap<>();
         model.put("username", admin.getUsernameUsuario());
         model.put("url", url);
+        model.put("logoimageUrl", logomail_imageUrl);
+        model.put("frontend_baseUrl", baseurl);
+
         context.setVariables(model);
+
         String html_template = templateEngine.process("adminrequest-mailtemplate", context);
 
         helper.setSubject(asunto);

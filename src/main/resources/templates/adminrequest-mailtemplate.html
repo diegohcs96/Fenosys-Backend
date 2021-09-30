@@ -136,19 +136,6 @@
                                                         <td height="30" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">&nbsp;</td>
                                                     </tr>
                                                 </table>
-                                                <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                                                    <tr>
-                                                        <td>
-                                                            <div class="img" style="font-size:0pt; line-height:0pt; text-align:center">
-                                                                <div class="img-m-center" style="font-size:0pt; line-height:0pt">
-                                                                    <a href="#" target="_blank">
-                                                                        <img src="" border="0" width="45" height="45" alt="" />
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </table>
                                                 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">
                                                     <tr>
                                                         <td height="25" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">&nbsp;</td>
@@ -190,7 +177,7 @@
                                                 </table>
                                                 <div class="fluid-img" style="font-size:0pt; line-height:0pt;">
                                                     <div class="img-center" style="font-size:0pt; line-height:0pt; text-align:center">
-                                                        <img src="images/contrato.png" border="0" width="357" height="230" alt="" />
+                                                        <img th:src="@{${logoimageUrl}}"  border="0" width="357" height="230" alt=""/>
                                                     </div>
                                                 </div>
                                                 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">
@@ -233,7 +220,26 @@
                                                 </table>
                                                 <!-- El mensaje -->
                                                 <div style="color:#444444; font-family: 'Work Sans', Arial, sans-serif; font-size:15px; line-height:21px; text-align:center; font-weight: bolder">
-                                                    Usuario: <span style="font-weight: 200">dsadasdasd</span>
+                                                    Usuario: <span style="font-weight: 200" th:text="${username}"></span>
+                                                </div>
+                                                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">
+                                                    <tr>
+                                                        <td height="50" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">&nbsp;</td>
+                                                    </tr>
+                                                </table>
+                                                <div style="color:#333333; font-family: 'Work Sans', Arial, sans-serif; font-size:15px; line-height:21px; text-align:center">
+                                                    Has click en el link para culminar con su registro
+                                                </div>
+                                                <div style="text-align:center">
+                                                    <a style="color: #1dbe72; text-decoration: none; font-size:15px" th:href="@{${url}}">Culminar Registro</a>
+                                                </div>
+                                                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">
+                                                    <tr>
+                                                        <td height="30" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">&nbsp;</td>
+                                                    </tr>
+                                                </table>
+                                                <div style="color:#333333; font-family: 'Work Sans', Arial, sans-serif; font-size:15px; line-height:21px; text-align:justify; font-weight: bolder">
+                                                    Recuerde que tiene 72 horas para finalizar con el proceso. De lo contrario, debe realizar una nueva solicitud.
                                                 </div>
                                                 <!-- Fin del mensaje-->
                                                 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="spacer" style="font-size:0pt; line-height:0pt; text-align:center; width:100%; min-width:100%">
@@ -279,9 +285,9 @@
                                         <tr>
                                             <td align="center">
                                                 <div class="text-r-m-center" style="color:#777777; font-family: 'Work Sans', Arial, sans-serif; font-size:14px; line-height:24px; text-align:center">
-                                                    <a href="#" target="_blank" style="color:#666666; text-decoration:underline"><span style="color:#666666; text-decoration:underline">http://kaizen-talent.com/</span></a>
+                                                    <a href="#" target="_blank" style="color:#666666; text-decoration:underline"><span style="color:#666666; text-decoration:underline" th:text="${frontend_baseUrl}"></span></a>
                                                     <br/>
-                                                    &copy; 2021 Fenosys - Todos los derechos reservados
+                                                    &copy; 2021 Dessmo - Todos los derechos reservados
                                                 </div>
                                             </td>
                                         </tr>
