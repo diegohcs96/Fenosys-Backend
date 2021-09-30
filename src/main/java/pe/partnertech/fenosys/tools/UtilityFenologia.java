@@ -2,7 +2,7 @@
  * Copyright (c) 2021. Developed by Diego Campos Sandoval.
  */
 
-package pe.partnertech.fenosys.util;
+package pe.partnertech.fenosys.tools;
 
 import javax.servlet.http.HttpServletRequest;
 

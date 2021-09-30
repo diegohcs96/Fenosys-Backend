@@ -26,7 +26,7 @@ import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.enums.RolNombre;
 import pe.partnertech.fenosys.model.*;
 import pe.partnertech.fenosys.service.*;
-import pe.partnertech.fenosys.util.UtilityFenologia;
+import pe.partnertech.fenosys.tools.UtilityFenologia;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -256,17 +256,6 @@ public class SignupAdminController {
         model.put("url", url);
         context.setVariables(model);
         String html_template = templateEngine.process("adminrequest-mailtemplate", context);
-
-        String contenido =
-                "<h2>Hola,</h1>" +
-                        "<p>Gracias por realizar tu solicitud de Registro de Usuario.</p>" +
-                        "<p>Hemos generado un usuario para continuar con el trámite. Del mismo modo, debes acceder al link para " +
-                        "culminar con el registro para acceder al sistema.</p>" +
-                        "<br>" +
-                        "<h4>Usuario: </h2>" + admin.getUsernameUsuario() +
-                        "<br>" +
-                        "<br>Haz click en el link que se encuentra debajo para continuar con el registro." +
-                        "<a href=" + url + ">Completar mi registro</a>";
 
         helper.setSubject(asunto);
         helper.setText(html_template, true);

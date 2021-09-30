@@ -21,7 +21,7 @@ import pe.partnertech.fenosys.model.RestoreToken;
 import pe.partnertech.fenosys.model.Usuario;
 import pe.partnertech.fenosys.service.IRestoreTokenService;
 import pe.partnertech.fenosys.service.IUsuarioService;
-import pe.partnertech.fenosys.util.UtilityFenologia;
+import pe.partnertech.fenosys.tools.UtilityFenologia;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
