@@ -4,7 +4,7 @@
 
 package pe.partnertech.fenosys.dto.request.restore_password;
 
-public class RestartPasswordRequest {
+public class UpdatePasswordRequest {
 
     //Atributos
     private String restoreToken;
@@ -12,10 +12,10 @@ public class RestartPasswordRequest {
 
     //Constructores
 
-    public RestartPasswordRequest() {
+    public UpdatePasswordRequest() {
     }
 
-    public RestartPasswordRequest(String restoreToken, String passwordUsuario) {
+    public UpdatePasswordRequest(String restoreToken, String passwordUsuario) {
         this.restoreToken = restoreToken;
         this.passwordUsuario = passwordUsuario;
     }

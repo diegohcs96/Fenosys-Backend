@@ -26,7 +26,7 @@ import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.enums.RolNombre;
 import pe.partnertech.fenosys.model.*;
 import pe.partnertech.fenosys.service.*;
-import pe.partnertech.fenosys.tools.UtilityFenologia;
+import pe.partnertech.fenosys.tools.UtilityFenosys;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -113,7 +113,7 @@ public class SignupAdminController {
 
                     usuarioService.GuardarUsuarioSemiFull(admin);
 
-                    String url = UtilityFenologia.GenerarUrl(request) + "/api/admin_register_gateway?token=" + token;
+                    String url = UtilityFenosys.GenerarUrl(request) + "/api/admin_register_gateway?token=" + token;
 
                     EnviarCorreo(restorePasswordRequest.getEmailUsuario(), url);
                 } catch (UnsupportedEncodingException e) {
@@ -244,7 +244,7 @@ public class SignupAdminController {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        helper.setFrom("fenosis.assistant@gmail.com", "Fenosis Support");
+        helper.setFrom("fenosys.assistant@gmail.com", "Fenosys Support");
         helper.setTo(email);
 
         String asunto = "Solicitud de Registro de Administrador";

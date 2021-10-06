@@ -19,7 +19,7 @@ import java.util.Set;
 
 @Component
 @Transactional
-public class MaintainceFenologia {
+public class MaintainceFenosys {
 
     @Autowired
     IRestoreTokenService restoreTokenService;

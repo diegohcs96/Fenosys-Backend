@@ -14,14 +14,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import pe.partnertech.fenosys.dto.request.restore_password.RestartPasswordRequest;
+import pe.partnertech.fenosys.dto.request.restore_password.UpdatePasswordRequest;
 import pe.partnertech.fenosys.dto.request.restore_password.RestorePasswordRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.model.RestoreToken;
 import pe.partnertech.fenosys.model.Usuario;
 import pe.partnertech.fenosys.service.IRestoreTokenService;
 import pe.partnertech.fenosys.service.IUsuarioService;
-import pe.partnertech.fenosys.tools.UtilityFenologia;
+import pe.partnertech.fenosys.tools.UtilityFenosys;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -37,7 +37,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
-public class RestartPasswordController {
+public class RestorePasswordController {
 
     @Autowired
     IUsuarioService usuarioService;
@@ -50,7 +50,7 @@ public class RestartPasswordController {
     @Value("${front.baseurl}")
     private String baseurl;
 
-    @PostMapping("/restart_password/send")
+    @PostMapping("/restore_password/request")
     public ResponseEntity<?> RestartPasswordSendEmail(@RequestBody RestorePasswordRequest restorePasswordRequest,
                                                       HttpServletRequest request) {
 
@@ -81,7 +81,7 @@ public class RestartPasswordController {
 
                 usuarioService.GuardarUsuarioSemiFull(usuario);
 
-                String url = UtilityFenologia.GenerarUrl(request) + "/api/password_restart_gateway?token=" + token;
+                String url = UtilityFenosys.GenerarUrl(request) + "/api/password_restart_gateway?token=" + token;
 
                 EnviarCorreo(restorePasswordRequest.getEmailUsuario(), url);
             } catch (UnsupportedEncodingException e) {
@@ -90,7 +90,7 @@ public class RestartPasswordController {
                 return new ResponseEntity<>(new MessageResponse("Error al enviar el email."), HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(new MessageResponse("Revise su bandeja de entrada para continuar con el proceso " +
-                    "de Reinicio de Contraseña."), HttpStatus.OK);
+                    "de Restauración de Contraseña."), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new MessageResponse("No se encuentra el email solicitado en nuestro sistema."), HttpStatus.NOT_FOUND);
         }
@@ -108,10 +108,10 @@ public class RestartPasswordController {
         }
     }
 
-    @PutMapping("/restart_password/update")
-    public ResponseEntity<?> ForgotPasswordUpdateProcess(@RequestBody RestartPasswordRequest restartPasswordRequest) {
+    @PutMapping("/restore_password/update")
+    public ResponseEntity<?> ForgotPasswordUpdateProcess(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
 
-        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(restartPasswordRequest.getRestoreToken());
+        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(updatePasswordRequest.getRestoreToken());
 
         if (restoretoken_data.isPresent()) {
             RestoreToken restoretoken = restoretoken_data.get();
@@ -121,9 +121,12 @@ public class RestartPasswordController {
             if (usuario_data.isPresent()) {
                 Usuario usuario = usuario_data.get();
 
-                usuario.setPasswordUsuario(passwordEncoder.encode(restartPasswordRequest.getPasswordUsuario()));
+                usuario.setPasswordUsuario(passwordEncoder.encode(updatePasswordRequest.getPasswordUsuario()));
 
                 usuarioService.GuardarUsuarioSemiFull(usuario);
+
+                restoreTokenService.EliminarRestoreToken_MiddleTable(restoretoken.getIdRestoreToken());
+                restoreTokenService.EliminarRestoreToken_This(restoretoken.getIdRestoreToken());
 
                 return new ResponseEntity<>(new MessageResponse("Contraseña actualizada satisfactoriamente"), HttpStatus.OK);
             } else {
@@ -139,14 +142,14 @@ public class RestartPasswordController {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        helper.setFrom("fenosis.assistant@gmail.com", "Fenosis Support");
+        helper.setFrom("fenosys.assistant@gmail.com", "Fenosys Support");
         helper.setTo(email);
 
-        String asunto = "Solicitud de Reinicio de Contraseña";
+        String asunto = "Solicitud de Restauración de Contraseña";
 
         String contenido =
                 "<h2>Hola,</h1>" +
-                        "<p>Gracias por realizar tu solicitud de Reinicio de Contraseña.</p>" +
+                        "<p>Gracias por realizar tu solicitud de Restauración de Contraseña.</p>" +
                         "<br>Haz click en el link que se encuentra debajo para continuar con el proceso." +
                         "<a href=" + url + ">Reiniciar mi Contraseña</a>";
 

@@ -6,7 +6,7 @@ package pe.partnertech.fenosys.tools;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class UtilityFenologia {
+public class UtilityFenosys {
 
     public static String GenerarUrl(HttpServletRequest request) {
 
