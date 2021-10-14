@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface IImagenService {
 
-    Optional<Imagen> BuscarImagen_ID(Long id);
+    Optional<Imagen> BuscarImagen_ID(Long id_imagen);
 
-    Optional<Imagen> BuscarImagen_Nombre(String nombreimagen);
+    Optional<Imagen> BuscarImagen_Nombre(String nombre_imagen);
 
-    int GuardarImagen(Imagen imagen);
+    void GuardarImagen(Imagen imagen);
 }

@@ -5,32 +5,30 @@
 package pe.partnertech.fenosys.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import pe.partnertech.fenosys.model.RestoreToken;
 import pe.partnertech.fenosys.model.Usuario;
+import pe.partnertech.fenosys.model.UtilityToken;
 
 import java.util.Optional;
 
 public interface IUsuarioService {
 
-    Optional<Usuario> BuscarUsuario_ID(Long id);
+    //UTU: Utility Tokens de Usuario
 
-    Optional<Usuario> BuscarUsuario_Username(String username);
+    Optional<Usuario> BuscarUsuario_By_IDUsuario(Long id_usuario);
 
-    Optional<Usuario> BuscarUsuario_Email(String email);
+    Optional<Usuario> BuscarUsuario_By_EmailUsuario(String email_usuario);
 
-    Optional<Usuario> BuscarUsuario_Signin(String username_email);
+    Optional<Usuario> BuscarUsuario_By_UsernameOrEmail(String username_or_email);
 
-    Optional<Usuario> BuscarUsuario_RestoreToken(RestoreToken restoreToken);
+    Optional<Usuario> BuscarUsuario_By_UtilityToken(UtilityToken utilitytoken);
 
-    Boolean ValidarUsername(String username);
+    Boolean ValidarUsername(String username_usuario);
 
-    Boolean ValidarEmail(String email);
+    void GuardarUsuarioMultipart(Usuario usuario, MultipartFile archivo);
 
-    int GuardarUsuarioFull(Usuario usuario, MultipartFile archivo);
+    void GuardarUsuario(Usuario usuario);
 
-    int GuardarUsuarioSemiFull(Usuario usuario);
+    void EliminarUsuario_From_UTU_MiddleTable(Long id_usuario);
 
-    void EliminarUsuario_From_RTU_MiddleTable(Long id);
-
-    void EliminarUsuario_This(Long id);
+    void EliminarUsuario_This(Long id_usuario);
 }

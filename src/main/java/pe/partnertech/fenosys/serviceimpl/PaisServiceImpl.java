@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.partnertech.fenosys.model.Pais;
 import pe.partnertech.fenosys.repository.IPaisDAO;
@@ -18,21 +17,11 @@ import java.util.Set;
 @Transactional
 public class PaisServiceImpl implements IPaisService {
 
-    @Autowired
+    final
     IPaisDAO data;
 
-    @Override
-    public int GuardarPais(Pais pais) {
-        int rpta = 0;
-
-        Pais p = data.save(pais);
-
-        if (!p.equals(null)) {
-
-            rpta = 1;
-        }
-
-        return rpta;
+    public PaisServiceImpl(IPaisDAO data) {
+        this.data = data;
     }
 
     @Override
@@ -41,22 +30,7 @@ public class PaisServiceImpl implements IPaisService {
     }
 
     @Override
-    public Optional<Pais> BuscarPais_IDDepartamento(Long id) {
-        return data.findPaisByIDDepartamento(id);
-    }
-
-    @Override
-    public Optional<Pais> BuscarPais_Pais(String pais) {
-        return data.findByNombrePais(pais);
-    }
-
-    @Override
-    public boolean ValidarNombrePais(String pais) {
-        return data.existsByNombrePais(pais);
-    }
-
-    @Override
-    public void EliminarPais(Long id) {
-        data.deleteById(id);
+    public Optional<Pais> BuscarPais_By_IDDepartamento(Long id_departamento) {
+        return data.findPaisByIDDepartamento(id_departamento);
     }
 }

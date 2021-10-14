@@ -9,16 +9,16 @@ public class UpdateBasicInfoRequest {
     //Atributos
     private String nombreUsuario;
     private String apellidoUsuario;
-    private Long iddistritoUsuario;
+    private Long distritoUsuario;
 
     //Constructores
     public UpdateBasicInfoRequest() {
     }
 
-    public UpdateBasicInfoRequest(String nombreUsuario, String apellidoUsuario, Long iddistritoUsuario) {
+    public UpdateBasicInfoRequest(String nombreUsuario, String apellidoUsuario, Long distritoUsuario) {
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
-        this.iddistritoUsuario = iddistritoUsuario;
+        this.distritoUsuario = distritoUsuario;
     }
 
     //Getters y Setters
@@ -38,11 +38,11 @@ public class UpdateBasicInfoRequest {
         this.apellidoUsuario = apellidoUsuario;
     }
 
-    public Long getIddistritoUsuario() {
-        return iddistritoUsuario;
+    public Long getDistritoUsuario() {
+        return distritoUsuario;
     }
 
-    public void setIddistritoUsuario(Long iddistritoUsuario) {
-        this.iddistritoUsuario = iddistritoUsuario;
+    public void setDistritoUsuario(Long distritoUsuario) {
+        this.distritoUsuario = distritoUsuario;
     }
 }

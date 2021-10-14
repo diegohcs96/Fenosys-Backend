@@ -4,13 +4,12 @@
 
 package pe.partnertech.fenosys.tools;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pe.partnertech.fenosys.model.RestoreToken;
 import pe.partnertech.fenosys.model.Usuario;
-import pe.partnertech.fenosys.service.IRestoreTokenService;
+import pe.partnertech.fenosys.model.UtilityToken;
 import pe.partnertech.fenosys.service.IUsuarioService;
+import pe.partnertech.fenosys.service.IUtilityTokenService;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -21,40 +20,59 @@ import java.util.Set;
 @Transactional
 public class MaintainceFenosys {
 
-    @Autowired
-    IRestoreTokenService restoreTokenService;
+    final
+    IUtilityTokenService utilityTokenService;
 
-    @Autowired
+    final
     IUsuarioService usuarioService;
 
-    @Scheduled(fixedRate = 60000)
-    public void EliminarUsuariosTimedOutSignupAdmin() {
+    public MaintainceFenosys(IUtilityTokenService utilityTokenService, IUsuarioService usuarioService) {
+        this.utilityTokenService = utilityTokenService;
+        this.usuarioService = usuarioService;
+    }
 
-        Set<RestoreToken> restoretoken_list = restoreTokenService.BuscarRestoreToken_ExpiracionyRazon(LocalDateTime.now(), "Signup Admin");
-
-        for (RestoreToken restoretoken : restoretoken_list) {
-            Optional<Usuario> usuario_timedout = usuarioService.BuscarUsuario_RestoreToken(restoretoken);
+    private void UtilityTokenList(Set<UtilityToken> utilitytoken_list) {
+        for (UtilityToken utilitytoken : utilitytoken_list) {
+            Optional<Usuario> usuario_timedout = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
 
             if (usuario_timedout.isPresent()) {
                 Usuario usuario = usuario_timedout.get();
 
-                restoreTokenService.EliminarRestoreToken_MiddleTable(restoretoken.getIdRestoreToken());
-                restoreTokenService.EliminarRestoreToken_This(restoretoken.getIdRestoreToken());
+                utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
+                utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
 
-                usuarioService.EliminarUsuario_From_RTU_MiddleTable(usuario.getIdUsuario());
+                usuarioService.EliminarUsuario_From_UTU_MiddleTable(usuario.getIdUsuario());
                 usuarioService.EliminarUsuario_This(usuario.getIdUsuario());
             }
         }
     }
 
     @Scheduled(fixedRate = 60000)
-    public void EliminarRestoreToken() {
+    public void EliminarUsuariosTimedOutSignupAdmin() {
+        Set<UtilityToken> utilitytoken_list = utilityTokenService.BuscarUtilityToken_By_ExpiracionAndRazon(LocalDateTime.now(),
+                "Signup Admin");
 
-        Set<RestoreToken> restoretoken_list = restoreTokenService.BuscarRestoreToken_ExpiracionyRazon(LocalDateTime.now(), "Restore Password");
-        for (RestoreToken restoretoken : restoretoken_list) {
-            long id = restoretoken.getIdRestoreToken();
-            restoreTokenService.EliminarRestoreToken_MiddleTable(id);
-            restoreTokenService.EliminarRestoreToken_This(id);
+        UtilityTokenList(utilitytoken_list);
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void EliminarUsuariosTimedOutSignupAgricultor() {
+        Set<UtilityToken> utilitytoken_list = utilityTokenService.BuscarUtilityToken_By_ExpiracionAndRazon(LocalDateTime.now(),
+                "Signup Agricultor Verify");
+
+        UtilityTokenList(utilitytoken_list);
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void EliminarRestoreToken() {
+        Set<UtilityToken> utilitytoken_list = utilityTokenService.BuscarUtilityToken_By_ExpiracionAndRazon(LocalDateTime.now(),
+                "Restore Password");
+
+        for (UtilityToken restoretoken : utilitytoken_list) {
+            long id = restoretoken.getIdUtilityToken();
+
+            utilityTokenService.EliminarUtilityToken_MiddleTable(id);
+            utilityTokenService.EliminarUtilityToken_This(id);
         }
     }
 }

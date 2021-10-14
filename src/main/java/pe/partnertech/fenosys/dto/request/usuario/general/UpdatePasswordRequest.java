@@ -2,12 +2,12 @@
  * Copyright (c) 2021. Developed by Diego Campos Sandoval.
  */
 
-package pe.partnertech.fenosys.dto.request.restore_password;
+package pe.partnertech.fenosys.dto.request.usuario.general;
 
 public class UpdatePasswordRequest {
 
     //Atributos
-    private String restoreToken;
+    private String utilityToken;
     private String passwordUsuario;
 
     //Constructores
@@ -15,18 +15,18 @@ public class UpdatePasswordRequest {
     public UpdatePasswordRequest() {
     }
 
-    public UpdatePasswordRequest(String restoreToken, String passwordUsuario) {
-        this.restoreToken = restoreToken;
+    public UpdatePasswordRequest(String utilityToken, String passwordUsuario) {
+        this.utilityToken = utilityToken;
         this.passwordUsuario = passwordUsuario;
     }
 
     //Getters y Setters
-    public String getRestoreToken() {
-        return restoreToken;
+    public String getUtilityToken() {
+        return utilityToken;
     }
 
-    public void setRestoreToken(String restoreToken) {
-        this.restoreToken = restoreToken;
+    public void setUtilityToken(String utilityToken) {
+        this.utilityToken = utilityToken;
     }
 
     public String getPasswordUsuario() {

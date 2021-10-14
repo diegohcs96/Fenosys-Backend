@@ -23,9 +23,5 @@ public interface IPaisDAO extends JpaRepository<Pais, Long> {
             "JOIN pais p ON dp.id_pais = p.id_pais " +
             "JOIN departamento d ON dp.id_departamento = d.id_departamento " +
             "WHERE dp.id_departamento = ?1", nativeQuery = true)
-    Optional<Pais> findPaisByIDDepartamento(Long id);
-
-    Optional<Pais> findByNombrePais(String pais);
-
-    boolean existsByNombrePais(String pais);
+    Optional<Pais> findPaisByIDDepartamento(Long id_pais);
 }

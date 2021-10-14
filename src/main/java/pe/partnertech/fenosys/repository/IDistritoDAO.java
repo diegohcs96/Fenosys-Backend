@@ -22,5 +22,5 @@ public interface IDistritoDAO extends JpaRepository<Distrito, Long> {
             "JOIN provincia p ON dp.id_provincia = p.id_provincia " +
             "JOIN distrito d ON dp.id_distrito = d.id_distrito " +
             "WHERE dp.id_provincia = ?1", nativeQuery = true)
-    Set<Distrito> findDistritosByIDProvincia(Long id);
+    Set<Distrito> findDistritosByIDProvincia(Long id_provincia);
 }

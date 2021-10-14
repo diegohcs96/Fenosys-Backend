@@ -13,7 +13,7 @@ public interface IDepartamentoService {
 
     Set<Departamento> MostrarDepartamentos();
 
-    Set<Departamento> BuscarDepartamentos_IDPais(Long id);
+    Set<Departamento> BuscarDepartamentos_By_IDPais(Long id_pais);
 
-    Optional<Departamento> BuscarDepartamento_IDProvincia(Long id);
+    Optional<Departamento> BuscarDepartamento_By_IDProvincia(Long id_provincia);
 }

@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.partnertech.fenosys.model.Imagen;
 import pe.partnertech.fenosys.repository.IImagenDAO;
@@ -17,30 +16,25 @@ import java.util.Optional;
 @Transactional
 public class ImagenServiceImpl implements IImagenService {
 
-    @Autowired
+    final
     IImagenDAO data;
 
-    @Override
-    public Optional<Imagen> BuscarImagen_ID(Long id) {
-        return data.findById(id);
+    public ImagenServiceImpl(IImagenDAO data) {
+        this.data = data;
     }
 
     @Override
-    public Optional<Imagen> BuscarImagen_Nombre(String nombreimagen) {
-        return data.findByNombreImagen(nombreimagen);
+    public Optional<Imagen> BuscarImagen_ID(Long id_imagen) {
+        return data.findById(id_imagen);
     }
 
     @Override
-    public int GuardarImagen(Imagen imagen) {
-        int rpta = 0;
+    public Optional<Imagen> BuscarImagen_Nombre(String nombre_imagen) {
+        return data.findByNombreImagen(nombre_imagen);
+    }
 
-        Imagen i = data.save(imagen);
-
-        if (!i.equals(null)) {
-
-            rpta = 1;
-        }
-
-        return rpta;
+    @Override
+    public void GuardarImagen(Imagen imagen) {
+        data.save(imagen);
     }
 }

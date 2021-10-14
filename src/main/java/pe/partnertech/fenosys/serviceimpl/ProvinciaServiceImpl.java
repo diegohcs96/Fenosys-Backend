@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.partnertech.fenosys.model.Provincia;
 import pe.partnertech.fenosys.repository.IProvinciaDAO;
@@ -18,8 +17,12 @@ import java.util.Set;
 @Transactional
 public class ProvinciaServiceImpl implements IProvinciaService {
 
-    @Autowired
+    final
     IProvinciaDAO data;
+
+    public ProvinciaServiceImpl(IProvinciaDAO data) {
+        this.data = data;
+    }
 
     @Override
     public Set<Provincia> MostrarProvincias() {
@@ -27,12 +30,12 @@ public class ProvinciaServiceImpl implements IProvinciaService {
     }
 
     @Override
-    public Set<Provincia> BuscarProvincias_IDDepartamento(Long id) {
-        return data.findProvinciasByIDDepartamento(id);
+    public Set<Provincia> BuscarProvincias_IDDepartamento(Long id_departamento) {
+        return data.findProvinciasByIDDepartamento(id_departamento);
     }
 
     @Override
-    public Optional<Provincia> BuscarProvincia_IDDistrito(Long id) {
-        return data.findProvinciaByIDDistrito(id);
+    public Optional<Provincia> BuscarProvincia_IDDistrito(Long id_distrito) {
+        return data.findProvinciaByIDDistrito(id_distrito);
     }
 }

@@ -81,7 +81,7 @@ public class UbicacionController {
 
         Set<DepartamentoResponse> lista_departamentos = new HashSet<>();
 
-        departamentoService.BuscarDepartamentos_IDPais(id).forEach(
+        departamentoService.BuscarDepartamentos_By_IDPais(id).forEach(
                 departamento -> {
                     lista_departamentos.add(
                             new DepartamentoResponse(
@@ -96,7 +96,7 @@ public class UbicacionController {
 
     Long BuscarPaisByDepartamento(Long iddepartamento) {
 
-        Optional<Pais> pais_data = paisService.BuscarPais_IDDepartamento(iddepartamento);
+        Optional<Pais> pais_data = paisService.BuscarPais_By_IDDepartamento(iddepartamento);
 
         if (pais_data.isPresent()) {
             Pais pais = pais_data.get();
@@ -145,7 +145,7 @@ public class UbicacionController {
 
     Long BuscarDepartamentoByProvincia(Long idprovincia) {
 
-        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_IDProvincia(idprovincia);
+        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_By_IDProvincia(idprovincia);
 
         if (departamento_data.isPresent()) {
             Departamento departamento = departamento_data.get();
@@ -179,7 +179,7 @@ public class UbicacionController {
 
         Set<DistritoResponse> lista_distritos = new HashSet<>();
 
-        distritoService.BuscarDistritos_IDProvincia(id).forEach(
+        distritoService.BuscarDistritos_By_IDProvincia(id).forEach(
                 distrito -> {
                     lista_distritos.add(
                             new DistritoResponse(

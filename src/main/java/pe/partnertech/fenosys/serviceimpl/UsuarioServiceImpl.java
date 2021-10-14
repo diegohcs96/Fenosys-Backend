@@ -4,11 +4,10 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import pe.partnertech.fenosys.model.RestoreToken;
 import pe.partnertech.fenosys.model.Usuario;
+import pe.partnertech.fenosys.model.UtilityToken;
 import pe.partnertech.fenosys.repository.IUsuarioDAO;
 import pe.partnertech.fenosys.service.IUsuarioService;
 
@@ -19,77 +18,57 @@ import java.util.Optional;
 @Transactional
 public class UsuarioServiceImpl implements IUsuarioService {
 
-    @Autowired
+    //UTU: Utility Tokens de Usuario
+
+    final
     IUsuarioDAO data;
 
-    @Override
-    public Optional<Usuario> BuscarUsuario_ID(Long id) {
-        return data.findById(id);
+    public UsuarioServiceImpl(IUsuarioDAO data) {
+        this.data = data;
     }
 
     @Override
-    public Optional<Usuario> BuscarUsuario_Username(String username) {
-        return data.findByUsernameUsuario(username);
+    public Optional<Usuario> BuscarUsuario_By_IDUsuario(Long id_usuario) {
+        return data.findById(id_usuario);
     }
 
     @Override
-    public Optional<Usuario> BuscarUsuario_Email(String email) {
-        return data.findByEmailUsuario(email);
+    public Optional<Usuario> BuscarUsuario_By_EmailUsuario(String email_usuario) {
+        return data.findByEmailUsuario(email_usuario);
     }
 
     @Override
-    public Optional<Usuario> BuscarUsuario_Signin(String username_email) {
-        return data.findByUsernameOrEmail(username_email);
+    public Optional<Usuario> BuscarUsuario_By_UsernameOrEmail(String username_or_email) {
+        return data.findByUsernameOrEmail(username_or_email);
     }
 
     @Override
-    public Optional<Usuario> BuscarUsuario_RestoreToken(RestoreToken restoreToken) {
-        return data.findByRestoretokenUsuario(restoreToken);
+    public Optional<Usuario> BuscarUsuario_By_UtilityToken(UtilityToken utilitytoken) {
+        return data.findByUtilitytokenUsuario(utilitytoken);
     }
 
     @Override
-    public Boolean ValidarUsername(String username) {
-        return data.existsByUsernameUsuario(username);
+    public Boolean ValidarUsername(String username_usuario) {
+        return data.existsByUsernameUsuario(username_usuario);
     }
 
     @Override
-    public Boolean ValidarEmail(String email) {
-        return data.existsByEmailUsuario(email);
+    public void GuardarUsuarioMultipart(Usuario usuario, MultipartFile archivo) {
+        data.save(usuario);
     }
 
     @Override
-    public int GuardarUsuarioFull(Usuario usuario, MultipartFile archivo) {
-        int rpta = 0;
-
-        Usuario u = data.save(usuario);
-
-        if (!u.equals(null)) {
-            rpta = 1;
-        }
-
-        return rpta;
+    public void GuardarUsuario(Usuario usuario) {
+        data.save(usuario);
     }
 
     @Override
-    public int GuardarUsuarioSemiFull(Usuario usuario) {
-        int rpta = 0;
-
-        Usuario u = data.save(usuario);
-
-        if (!u.equals(null)) {
-            rpta = 1;
-        }
-
-        return rpta;
+    public void EliminarUsuario_From_UTU_MiddleTable(Long id_usuario) {
+        data.deleteUsuarioFromUTUMiddleTable(id_usuario);
     }
 
     @Override
-    public void EliminarUsuario_From_RTU_MiddleTable(Long id) {
-        data.deleteUsuarioFromRTUMiddleTable(id);
-    }
-
-    @Override
-    public void EliminarUsuario_This(Long id) {
-        data.deleteById(id);
+    public void EliminarUsuario_This(Long id_usuario) {
+        data.deleteById(id_usuario);
     }
 }

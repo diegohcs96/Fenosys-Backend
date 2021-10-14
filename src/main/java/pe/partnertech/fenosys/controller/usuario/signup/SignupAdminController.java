@@ -6,7 +6,6 @@ package pe.partnertech.fenosys.controller.usuario.signup;
 
 import net.bytebuddy.utility.RandomString;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -17,10 +16,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import pe.partnertech.fenosys.dto.request.restore_password.RestorePasswordRequest;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SetUserRol;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SignupValidations;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UploadFoto;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UtilityToken;
+import pe.partnertech.fenosys.dto.request.usuario.general.EmailRequest;
 import pe.partnertech.fenosys.dto.request.usuario.signup.SignupAdminRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.enums.RolNombre;
@@ -37,51 +39,70 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
 public class SignupAdminController {
 
-    @Autowired
+    final
     IUsuarioService usuarioService;
-    @Autowired
-    IRestoreTokenService restoreTokenService;
-    @Autowired
+    final
+    IUtilityTokenService utilityTokenService;
+    final
     JavaMailSender mailSender;
-    @Autowired
+    final
     IDistritoService distritoService;
-    @Autowired
+    final
     IRolService rolService;
-    @Autowired
+    final
     PasswordEncoder passwordEncoder;
-    @Autowired
+    final
     IImagenService imagenService;
-    @Autowired
+    final
     TemplateEngine templateEngine;
+    Code_SignupValidations code_signupValidations;
+    Code_UploadFoto code_uploadFoto;
     @Value("${front.baseurl}")
     private String baseurl;
+    @Value("${image.mail.url}")
+    private String logomail_url;
 
-    @Value("${image.mail.logourl}")
-    private String logomail_imageUrl;
+    public SignupAdminController(IUsuarioService usuarioService, IUtilityTokenService utilityTokenService,
+                                 JavaMailSender mailSender, IDistritoService distritoService, IRolService rolService,
+                                 PasswordEncoder passwordEncoder, IImagenService imagenService,
+                                 TemplateEngine templateEngine) {
+        this.usuarioService = usuarioService;
+        this.utilityTokenService = utilityTokenService;
+        this.mailSender = mailSender;
+        this.distritoService = distritoService;
+        this.rolService = rolService;
+        this.passwordEncoder = passwordEncoder;
+        this.imagenService = imagenService;
+        this.templateEngine = templateEngine;
+    }
 
     @PostMapping("/admin/signup_request")
     @PreAuthorize("hasRole('ROLE_MASTER')")
-    public ResponseEntity<?> SignupAdminRequest(@RequestBody RestorePasswordRequest restorePasswordRequest,
+    public ResponseEntity<?> SignupAdminRequest(@RequestBody EmailRequest emailRequest,
                                                 HttpServletRequest request) {
 
-        if (usuarioService.ValidarEmail(restorePasswordRequest.getEmailUsuario())) {
-            return new ResponseEntity<>(new MessageResponse("Ya se solicitó un proceso de Registro con ese Email."), HttpStatus.BAD_REQUEST);
+        Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_EmailUsuario(emailRequest.getEmailUsuario());
+
+        if (usuario_data.isPresent()) {
+            return code_signupValidations.SignupValidation(usuario_data);
         } else {
             String token = RandomString.make(50);
 
             Usuario new_admin = new Usuario();
-            new_admin.setEmailUsuario(restorePasswordRequest.getEmailUsuario());
-            usuarioService.GuardarUsuarioSemiFull(new_admin);
+            new_admin.setEmailUsuario(emailRequest.getEmailUsuario());
+            new_admin.setEstadoUsuario("PENDIENTE");
+            usuarioService.GuardarUsuario(new_admin);
 
-            Optional<Usuario> admin_data = usuarioService.BuscarUsuario_Email(restorePasswordRequest.getEmailUsuario());
+            Optional<Usuario> admin_data = usuarioService.BuscarUsuario_By_EmailUsuario(emailRequest.getEmailUsuario());
 
             if (admin_data.isPresent()) {
                 try {
@@ -92,40 +113,31 @@ public class SignupAdminController {
                     String username = "admin_" + identity1_admin + admin.getIdUsuario() + identity2_admin;
 
                     admin.setUsernameUsuario(username);
-                    usuarioService.GuardarUsuarioSemiFull(admin);
+                    usuarioService.GuardarUsuario(admin);
 
-                    RestoreToken restoreToken = new RestoreToken(
+                    UtilityToken utilityToken = new UtilityToken(
                             token,
                             "Signup Admin",
                             LocalDateTime.now().plusHours(72)
                     );
 
-                    restoreTokenService.GuardarRestoreToken(restoreToken);
-
-                    Set<RestoreToken> restoretoken_list;
-                    if (admin.getRestoretokenUsuario() == null) {
-                        restoretoken_list = new HashSet<>();
-                    } else {
-                        restoretoken_list = admin.getRestoretokenUsuario();
-                    }
-                    restoretoken_list.add(restoreToken);
-                    admin.setRestoretokenUsuario(restoretoken_list);
-
-                    usuarioService.GuardarUsuarioSemiFull(admin);
+                    Code_UtilityToken.UtilityTokenUser(admin, utilityToken, utilityTokenService, usuarioService);
 
                     String url = UtilityFenosys.GenerarUrl(request) + "/api/admin_register_gateway?token=" + token;
 
-                    EnviarCorreo(restorePasswordRequest.getEmailUsuario(), url);
+                    EnviarCorreo(emailRequest.getEmailUsuario(), url);
                 } catch (UnsupportedEncodingException e) {
                     return new ResponseEntity<>(new MessageResponse("Error: " + e), HttpStatus.BAD_REQUEST);
                 } catch (MessagingException e) {
-                    return new ResponseEntity<>(new MessageResponse("Error al enviar el correo."), HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(new MessageResponse("Error al enviar el correo."),
+                            HttpStatus.BAD_REQUEST);
                 }
 
                 return new ResponseEntity<>(new MessageResponse("Se envió el correo a la bandeja de entrada del " +
                         "Solicitante de manera satisfactoria."), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(new MessageResponse("Ocurrió un error en la solicitud de Registro."), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new MessageResponse("Ocurrió un error en la solicitud de Registro."),
+                        HttpStatus.NOT_FOUND);
             }
         }
     }
@@ -133,9 +145,9 @@ public class SignupAdminController {
     @GetMapping("/admin_register_gateway")
     void RedirectSignupAdminRequest(HttpServletResponse response, @Param(value = "token") String token) throws IOException {
 
-        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(token);
+        Optional<UtilityToken> utilitytoken_data = utilityTokenService.BuscarUtilityToken_By_Token(token);
 
-        if (restoretoken_data.isPresent()) {
+        if (utilitytoken_data.isPresent()) {
             response.sendRedirect(baseurl + "/signup/admin/" + token);
         } else {
             response.sendRedirect(baseurl);
@@ -146,15 +158,16 @@ public class SignupAdminController {
     public ResponseEntity<?> SignupAdminProcess(@RequestPart("usuario") SignupAdminRequest signupAdminRequest,
                                                 @RequestPart("foto") MultipartFile foto) {
 
-        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(signupAdminRequest.getRequesttokenUsuario());
+        Optional<UtilityToken> utilitytoken_data =
+                utilityTokenService.BuscarUtilityToken_By_Token(signupAdminRequest.getUtilitytokenUsuario());
 
-        if (restoretoken_data.isPresent()) {
-            RestoreToken restoretoken = restoretoken_data.get();
+        if (utilitytoken_data.isPresent()) {
+            UtilityToken utilitytoken = utilitytoken_data.get();
 
-            Optional<Usuario> admin_data = usuarioService.BuscarUsuario_RestoreToken(restoretoken);
+            Optional<Usuario> admin_data = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
 
             if (admin_data.isPresent()) {
-                Optional<Distrito> distrito_data = distritoService.BuscarDistrito_ID(
+                Optional<Distrito> distrito_data = distritoService.BuscarDistrito_By_IDDistrito(
                         signupAdminRequest.getDistritoUsuario()
                 );
 
@@ -170,35 +183,23 @@ public class SignupAdminController {
                     //Asignando Rol: Administrador
                     Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_ADMIN);
 
-                    if (rol_data.isPresent()) {
-                        Set<Rol> roles = new HashSet<>();
-                        roles.add(rol_data.get());
-                        admin.setRolUsuario(roles);
-                    } else {
-                        return new ResponseEntity<>(new MessageResponse("Ocurrió un error al otorgar sus permisos correspondientes."), HttpStatus.NOT_FOUND);
-                    }
+                    if (Code_SetUserRol.SetUserRol(admin, rol_data))
+                        return new ResponseEntity<>(new MessageResponse("Ocurrió un error al otorgar sus permisos correspondientes."),
+                                HttpStatus.NOT_FOUND);
 
                     //Asignando Fecha de Registro Actual
                     admin.setFecharegistroUsuario(LocalDate.now());
 
+                    //Cambiando Estado de Cuenta a ACTIVO
+                    admin.setEstadoUsuario("ACTIVO");
+
                     //Asignando Imagen
                     try {
-                        String separadorfoto = Pattern.quote(".");
-                        String[] formatofoto = foto.getOriginalFilename().split(separadorfoto);
-                        String nombrefoto = UUID.randomUUID() + admin.getIdUsuario().toString() + UUID.randomUUID()
-                                + "." + formatofoto[formatofoto.length - 1];
-
-                        String urlfoto = ServletUriComponentsBuilder
-                                .fromCurrentContextPath()
-                                .path("/photos/")
-                                .path(nombrefoto)
-                                .toUriString();
-
                         if (!foto.isEmpty()) {
                             Imagen imagen = new Imagen(
-                                    nombrefoto,
+                                    code_uploadFoto.getNombreFoto(),
                                     foto.getContentType(),
-                                    urlfoto,
+                                    code_uploadFoto.getUrlFoto(),
                                     foto.getBytes()
                             );
 
@@ -206,36 +207,42 @@ public class SignupAdminController {
                             admin.setImagenUsuario(imagen);
                         } else {
                             InputStream fotoStream = getClass().getResourceAsStream("/static/img/AdminUser.png");
-                            byte[] fotofile = IOUtils.toByteArray(fotoStream);
+                            assert fotoStream != null;
+                            byte[] file_foto = IOUtils.toByteArray(fotoStream);
 
                             Imagen imagen = new Imagen(
-                                    nombrefoto + "png",
+                                    code_uploadFoto.getNombreFoto() + "png",
                                     "image/png",
-                                    urlfoto + "png",
-                                    fotofile
+                                    code_uploadFoto.getUrlFoto() + "png",
+                                    file_foto
                             );
 
                             imagenService.GuardarImagen(imagen);
                             admin.setImagenUsuario(imagen);
                         }
                     } catch (Exception e) {
-                        return new ResponseEntity<>(new MessageResponse("No se puede subir el archivo " + e), HttpStatus.EXPECTATION_FAILED);
+                        return new ResponseEntity<>(new MessageResponse("No se puede subir el archivo " + e),
+                                HttpStatus.EXPECTATION_FAILED);
                     }
 
-                    restoreTokenService.EliminarRestoreToken_MiddleTable(restoretoken.getIdRestoreToken());
-                    restoreTokenService.EliminarRestoreToken_This(restoretoken.getIdRestoreToken());
+                    utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
+                    utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
 
-                    usuarioService.GuardarUsuarioFull(admin, foto);
+                    usuarioService.GuardarUsuarioMultipart(admin, foto);
 
-                    return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente."), HttpStatus.OK);
+                    return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente."),
+                            HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<>(new MessageResponse("Ocurrio un error al buscar su Ubicación."), HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error al buscar su Ubicación."),
+                            HttpStatus.NOT_FOUND);
                 }
             } else {
-                return new ResponseEntity<>(new MessageResponse("Ocurrió un error durante el proceso de Registro."), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new MessageResponse("Ocurrió un error durante el proceso de Registro."),
+                        HttpStatus.NOT_FOUND);
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("El proceso de registro ya no se encuentra disponible."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("El proceso de registro ya no se encuentra disponible."),
+                    HttpStatus.NOT_FOUND);
         }
     }
 
@@ -249,24 +256,26 @@ public class SignupAdminController {
 
         String asunto = "Solicitud de Registro de Administrador";
 
-        Optional<Usuario> admin_data = usuarioService.BuscarUsuario_Email(email);
+        Optional<Usuario> admin_data = usuarioService.BuscarUsuario_By_EmailUsuario(email);
 
-        Usuario admin = admin_data.get();
+        if (admin_data.isPresent()) {
+            Usuario admin = admin_data.get();
 
-        Context context = new Context();
-        Map<String, Object> model = new HashMap<>();
-        model.put("username", admin.getUsernameUsuario());
-        model.put("url", url);
-        model.put("logoimageUrl", logomail_imageUrl);
-        model.put("frontend_baseUrl", baseurl);
+            Context context = new Context();
+            Map<String, Object> model = new HashMap<>();
+            model.put("username", admin.getUsernameUsuario());
+            model.put("url", url);
+            model.put("logomail_Url", logomail_url);
+            model.put("frontend_baseUrl", baseurl);
 
-        context.setVariables(model);
+            context.setVariables(model);
 
-        String html_template = templateEngine.process("adminrequest-mailtemplate", context);
+            String html_template = templateEngine.process("adminrequest-mailtemplate", context);
 
-        helper.setSubject(asunto);
-        helper.setText(html_template, true);
+            helper.setSubject(asunto);
+            helper.setText(html_template, true);
 
-        mailSender.send(message);
+            mailSender.send(message);
+        }
     }
 }

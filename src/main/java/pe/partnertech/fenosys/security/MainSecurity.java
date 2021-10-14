@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,11 +25,16 @@ import pe.partnertech.fenosys.serviceimpl.UserDetailsServiceImpl;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MainSecurity extends WebSecurityConfigurerAdapter {
 
-    @Autowired
+    final
     UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
+    final
     JwtEntryPoint unauthorizedHandler;
+
+    public MainSecurity(UserDetailsServiceImpl userDetailsService, JwtEntryPoint unauthorizedHandler) {
+        this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
 
     @Bean
     public JwtTokenFilter jwtTokenFilter() {

@@ -15,16 +15,27 @@ import java.util.Optional;
 @Repository
 public interface IPlanillaCosechaDAO extends JpaRepository<PlanillaCosecha, Long> {
 
+    //PCU: Planilla Cosecha de Usuario
+
     @Query(value = "SELECT pcu.*, pc.*, u.* " +
             "FROM planillascosecha_usuario pcu " +
             "JOIN planillacosecha pc ON pcu.id_planillacosecha = pc.id_planillacosecha " +
             "JOIN usuario u ON pcu.id_usuario = u.id_usuario " +
             "WHERE pc.cosecha_planillacosecha LIKE ?1 AND u.id_usuario = ?2", nativeQuery = true)
-    Optional<PlanillaCosecha> findByNombreCosechaYIDAgricultor(String nombrecosecha, Long idagricultor);
+    boolean existsNombrePlanillaCosechaAndIDAgricultor(String nombre_planillacosecha,
+                                                       Long id_agricultor);
+
+    @Query(value = "SELECT pcu.*, pc.*, u.* " +
+            "FROM planillascosecha_usuario pcu " +
+            "JOIN planillacosecha pc ON pcu.id_planillacosecha = pc.id_planillacosecha " +
+            "JOIN usuario u ON pcu.id_usuario = u.id_usuario " +
+            "WHERE pc.cosecha_planillacosecha LIKE ?1 AND u.id_usuario = ?2", nativeQuery = true)
+    Optional<PlanillaCosecha> findPlanillaCosechaByNombrePlanillaCosechaAndIDAgricultor(String nombre_planillacosecha,
+                                                                                        Long id_agricultor);
 
     @Query(value = "DELETE " +
             "FROM planillascosecha_usuario pcu " +
             "WHERE pcu.id_planillacosecha = ?1", nativeQuery = true)
     @Modifying
-    void deletePlanillaCosechaFromPCUMiddleTable(Long id);
+    void deletePlanillaCosechaFromPCUMiddleTable(Long id_planillacosecha);
 }

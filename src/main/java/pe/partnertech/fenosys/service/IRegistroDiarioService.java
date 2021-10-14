@@ -4,9 +4,6 @@
 
 package pe.partnertech.fenosys.service;
 
-import pe.partnertech.fenosys.model.RegistroDiario;
-
 public interface IRegistroDiarioService {
 
-    int GuardarRegistroDiario(RegistroDiario registrodiario);
 }

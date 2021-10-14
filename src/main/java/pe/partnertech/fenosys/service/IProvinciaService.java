@@ -13,7 +13,7 @@ public interface IProvinciaService {
 
     Set<Provincia> MostrarProvincias();
 
-    Set<Provincia> BuscarProvincias_IDDepartamento(Long id);
+    Set<Provincia> BuscarProvincias_IDDepartamento(Long id_departamento);
 
-    Optional<Provincia> BuscarProvincia_IDDistrito(Long id);
+    Optional<Provincia> BuscarProvincia_IDDistrito(Long id_distrito);
 }

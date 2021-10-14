@@ -11,11 +11,13 @@ import java.util.Set;
 
 public interface IFaseFenologicaService {
 
-    Set<FaseFenologica> BuscarFasesFenologicas_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id);
+    //FFPC: Fases Fenológicas de Planilla de Cosecha
 
-    int GuardarFasesFenologicas_Config(List<FaseFenologica> lista_fasesfenologicas);
+    Set<FaseFenologica> BuscarFasesFenologicas_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id_planillacosecha);
 
-    void EliminarFaseFenologica_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id);
+    void GuardarFasesFenologicas_Config(List<FaseFenologica> lista_fasesfenologicas);
 
-    void EliminarFaseFenologica(Long id);
+    void EliminarFaseFenologica_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id_planillacosecha);
+
+    void EliminarFaseFenologica(Long id_fasefenologica);
 }

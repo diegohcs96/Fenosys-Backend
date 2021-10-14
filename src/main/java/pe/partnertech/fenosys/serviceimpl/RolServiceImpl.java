@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.partnertech.fenosys.enums.RolNombre;
 import pe.partnertech.fenosys.model.Rol;
@@ -18,8 +17,12 @@ import java.util.Optional;
 @Transactional
 public class RolServiceImpl implements IRolService {
 
-    @Autowired
+    final
     IRolDAO data;
+
+    public RolServiceImpl(IRolDAO data) {
+        this.data = data;
+    }
 
     @Override
     public Optional<Rol> BuscarRol_Nombre(RolNombre rol) {
