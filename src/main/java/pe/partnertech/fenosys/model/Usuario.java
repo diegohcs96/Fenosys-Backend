@@ -37,6 +37,9 @@ public class Usuario implements Serializable {
     @Column(name = "password_usuario")
     private String passwordUsuario;
 
+    @Column(name = "estado_usuario")
+    private String estadoUsuario;
+
     @Column(name = "fecharegistro_usuario")
     private LocalDate fecharegistroUsuario;
 
@@ -67,10 +70,10 @@ public class Usuario implements Serializable {
             CascadeType.DETACH,
             CascadeType.REFRESH
     }, fetch = FetchType.LAZY)
-    @JoinTable(name = "restoretokens_usuario",
+    @JoinTable(name = "utilitytokens_usuario",
             joinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"),
-            inverseJoinColumns = @JoinColumn(name = "id_restoretoken", referencedColumnName = "id_restoretoken"))
-    private Set<RestoreToken> restoretokenUsuario;
+            inverseJoinColumns = @JoinColumn(name = "id_utilitytoken", referencedColumnName = "id_utilitytoken"))
+    private Set<UtilityToken> utilitytokenUsuario;
 
     @OneToMany(cascade = {
             CascadeType.DETACH,
@@ -144,6 +147,14 @@ public class Usuario implements Serializable {
         this.passwordUsuario = passwordUsuario;
     }
 
+    public String getEstadoUsuario() {
+        return estadoUsuario;
+    }
+
+    public void setEstadoUsuario(String estadoUsuario) {
+        this.estadoUsuario = estadoUsuario;
+    }
+
     public LocalDate getFecharegistroUsuario() {
         return fecharegistroUsuario;
     }
@@ -176,12 +187,12 @@ public class Usuario implements Serializable {
         this.rolUsuario = rolUsuario;
     }
 
-    public Set<RestoreToken> getRestoretokenUsuario() {
-        return restoretokenUsuario;
+    public Set<UtilityToken> getUtilitytokenUsuario() {
+        return utilitytokenUsuario;
     }
 
-    public void setRestoretokenUsuario(Set<RestoreToken> restoretokenUsuario) {
-        this.restoretokenUsuario = restoretokenUsuario;
+    public void setUtilitytokenUsuario(Set<UtilityToken> utilitytokenUsuario) {
+        this.utilitytokenUsuario = utilitytokenUsuario;
     }
 
     public Set<PlanillaCosecha> getPlanillacosechaUsuario() {

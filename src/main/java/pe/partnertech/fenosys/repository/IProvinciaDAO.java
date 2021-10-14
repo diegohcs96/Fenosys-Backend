@@ -23,12 +23,12 @@ public interface IProvinciaDAO extends JpaRepository<Provincia, Long> {
             "JOIN departamento d ON pd.id_departamento = d.id_departamento " +
             "JOIN provincia p ON pd.id_provincia = p.id_provincia " +
             "WHERE pd.id_departamento = ?1", nativeQuery = true)
-    Set<Provincia> findProvinciasByIDDepartamento(Long id);
+    Set<Provincia> findProvinciasByIDDepartamento(Long id_departamento);
 
     @Query(value = "SELECT dp.*, p.*, d.* " +
             "FROM distritos_provincia dp " +
             "JOIN provincia p ON dp.id_provincia = p.id_provincia " +
             "JOIN distrito d ON dp.id_distrito = d.id_distrito " +
             "WHERE dp.id_distrito = ?1", nativeQuery = true)
-    Optional<Provincia> findProvinciaByIDDistrito(Long id);
+    Optional<Provincia> findProvinciaByIDDistrito(Long id_distrito);
 }

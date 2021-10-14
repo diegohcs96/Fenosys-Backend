@@ -26,17 +26,21 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String passwordUsuario;
 
+    @JsonIgnore
+    private String estadoUsuario;
+
     private Collection<? extends GrantedAuthority> authorities;
 
     //Constructores
     public UserDetailsImpl() {
     }
 
-    public UserDetailsImpl(Long idUsuario, String usernameUsuario, String passwordUsuario,
+    public UserDetailsImpl(Long idUsuario, String usernameUsuario, String passwordUsuario, String estadoUsuario,
                            Collection<? extends GrantedAuthority> authorities) {
         this.idUsuario = idUsuario;
         this.usernameUsuario = usernameUsuario;
         this.passwordUsuario = passwordUsuario;
+        this.estadoUsuario = estadoUsuario;
         this.authorities = authorities;
     }
 
@@ -49,6 +53,7 @@ public class UserDetailsImpl implements UserDetails {
                 usuario.getIdUsuario(),
                 usuario.getUsernameUsuario(),
                 usuario.getPasswordUsuario(),
+                usuario.getEstadoUsuario(),
                 authorities
         );
     }
@@ -65,6 +70,10 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public String getPassword() {
         return passwordUsuario;
+    }
+
+    public String getEstadoUsuario() {
+        return estadoUsuario;
     }
 
     @Override

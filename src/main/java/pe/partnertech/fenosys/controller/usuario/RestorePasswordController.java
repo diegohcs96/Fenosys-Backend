@@ -5,7 +5,6 @@
 package pe.partnertech.fenosys.controller.usuario;
 
 import net.bytebuddy.utility.RandomString;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -14,13 +13,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import pe.partnertech.fenosys.dto.request.restore_password.UpdatePasswordRequest;
-import pe.partnertech.fenosys.dto.request.restore_password.RestorePasswordRequest;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UtilityToken;
+import pe.partnertech.fenosys.dto.request.usuario.general.EmailRequest;
+import pe.partnertech.fenosys.dto.request.usuario.general.UpdatePasswordRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
-import pe.partnertech.fenosys.model.RestoreToken;
 import pe.partnertech.fenosys.model.Usuario;
-import pe.partnertech.fenosys.service.IRestoreTokenService;
+import pe.partnertech.fenosys.model.UtilityToken;
 import pe.partnertech.fenosys.service.IUsuarioService;
+import pe.partnertech.fenosys.service.IUtilityTokenService;
 import pe.partnertech.fenosys.tools.UtilityFenosys;
 
 import javax.mail.MessagingException;
@@ -39,101 +39,121 @@ import java.util.Set;
 @CrossOrigin
 public class RestorePasswordController {
 
-    @Autowired
+    final
     IUsuarioService usuarioService;
-    @Autowired
-    IRestoreTokenService restoreTokenService;
-    @Autowired
+    final
+    IUtilityTokenService utilityTokenService;
+    final
     JavaMailSender mailSender;
-    @Autowired
+    final
     PasswordEncoder passwordEncoder;
     @Value("${front.baseurl}")
     private String baseurl;
 
+    public RestorePasswordController(IUsuarioService usuarioService, IUtilityTokenService utilityTokenService,
+                                     JavaMailSender mailSender, PasswordEncoder passwordEncoder) {
+        this.usuarioService = usuarioService;
+        this.utilityTokenService = utilityTokenService;
+        this.mailSender = mailSender;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @PostMapping("/restore_password/request")
-    public ResponseEntity<?> RestartPasswordSendEmail(@RequestBody RestorePasswordRequest restorePasswordRequest,
+    public ResponseEntity<?> RestartPasswordSendEmail(@RequestBody EmailRequest emailRequest,
                                                       HttpServletRequest request) {
 
-        String token = RandomString.make(50);
-
-        Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_Email(restorePasswordRequest.getEmailUsuario());
+        Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_EmailUsuario(emailRequest.getEmailUsuario());
 
         if (usuario_data.isPresent()) {
-            try {
-                Usuario usuario = usuario_data.get();
+            Usuario usuario = usuario_data.get();
 
-                RestoreToken restoreToken = new RestoreToken(
-                        token,
-                        "Restore Password",
-                        LocalDateTime.now().plusMinutes(10)
-                );
+            Set<UtilityToken> lista_utilitytoken =
+                    new HashSet<>(utilityTokenService.BuscarUtilityToken_By_IDUsuarioAndRazonUtilityToken(
+                            usuario.getIdUsuario(),
+                            "Restore Password"));
 
-                restoreTokenService.GuardarRestoreToken(restoreToken);
+            if ((long) lista_utilitytoken.size() < 1) {
+                try {
+                    //Cambiando Estado de Cuenta: BLOQUEADO
+                    usuario.setEstadoUsuario("BLOQUEADO");
 
-                Set<RestoreToken> restoretoken_list;
-                if (usuario.getRestoretokenUsuario() == null) {
-                    restoretoken_list = new HashSet<>();
-                } else {
-                    restoretoken_list = usuario.getRestoretokenUsuario();
+                    String token = RandomString.make(50);
+
+                    UtilityToken utilityToken = new UtilityToken(
+                            token,
+                            "Restore Password",
+                            LocalDateTime.now().plusMinutes(10)
+                    );
+
+                    Code_UtilityToken.UtilityTokenUser(usuario, utilityToken, utilityTokenService, usuarioService);
+
+                    String url = UtilityFenosys.GenerarUrl(request) + "/api/restore_password_gateway?token=" + token;
+
+                    EnviarCorreo(emailRequest.getEmailUsuario(), url);
+                } catch (UnsupportedEncodingException e) {
+                    return new ResponseEntity<>(new MessageResponse("Error: " + e),
+                            HttpStatus.BAD_REQUEST);
+                } catch (MessagingException e) {
+                    return new ResponseEntity<>(new MessageResponse("Error al enviar el email."),
+                            HttpStatus.BAD_REQUEST);
                 }
-                restoretoken_list.add(restoreToken);
-                usuario.setRestoretokenUsuario(restoretoken_list);
-
-                usuarioService.GuardarUsuarioSemiFull(usuario);
-
-                String url = UtilityFenosys.GenerarUrl(request) + "/api/password_restart_gateway?token=" + token;
-
-                EnviarCorreo(restorePasswordRequest.getEmailUsuario(), url);
-            } catch (UnsupportedEncodingException e) {
-                return new ResponseEntity<>(new MessageResponse("Error: " + e), HttpStatus.BAD_REQUEST);
-            } catch (MessagingException e) {
-                return new ResponseEntity<>(new MessageResponse("Error al enviar el email."), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new MessageResponse("Revise su bandeja de entrada para continuar con el proceso " +
+                        "de Restauración de Contraseña."),
+                        HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new MessageResponse("Ya se solicitó un proceso de Restauración previamente con este correo electrónico."),
+                        HttpStatus.CONFLICT);
             }
-            return new ResponseEntity<>(new MessageResponse("Revise su bandeja de entrada para continuar con el proceso " +
-                    "de Restauración de Contraseña."), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new MessageResponse("No se encuentra el email solicitado en nuestro sistema."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("No se encuentra el email solicitado en nuestro sistema."),
+                    HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("/password_restart_gateway")
+    @GetMapping("/restore_password_gateway")
     void RedirectSignupAdminRequest(HttpServletResponse response, @Param(value = "token") String token) throws IOException {
 
-        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(token);
+        Optional<UtilityToken> utilitytoken_data = utilityTokenService.BuscarUtilityToken_By_Token(token);
 
-        if (restoretoken_data.isPresent()) {
-            response.sendRedirect(baseurl + "/password/restart/" + token);
+        if (utilitytoken_data.isPresent()) {
+            response.sendRedirect(baseurl + "/restore/password/" + token);
         } else {
             response.sendRedirect(baseurl);
         }
     }
 
     @PutMapping("/restore_password/update")
-    public ResponseEntity<?> ForgotPasswordUpdateProcess(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
+    public ResponseEntity<?> UpdatePasswordProcess(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
 
-        Optional<RestoreToken> restoretoken_data = restoreTokenService.BuscarRestoreToken_Token(updatePasswordRequest.getRestoreToken());
+        Optional<UtilityToken> utilitytoken_data = utilityTokenService.BuscarUtilityToken_By_Token(updatePasswordRequest.getUtilityToken());
 
-        if (restoretoken_data.isPresent()) {
-            RestoreToken restoretoken = restoretoken_data.get();
+        if (utilitytoken_data.isPresent()) {
+            UtilityToken utilitytoken = utilitytoken_data.get();
 
-            Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_RestoreToken(restoretoken);
+            Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
 
             if (usuario_data.isPresent()) {
                 Usuario usuario = usuario_data.get();
 
                 usuario.setPasswordUsuario(passwordEncoder.encode(updatePasswordRequest.getPasswordUsuario()));
 
-                usuarioService.GuardarUsuarioSemiFull(usuario);
+                //Cambiando Estado de Cuenta: BLOQUEADO
+                usuario.setEstadoUsuario("ACTIVO");
 
-                restoreTokenService.EliminarRestoreToken_MiddleTable(restoretoken.getIdRestoreToken());
-                restoreTokenService.EliminarRestoreToken_This(restoretoken.getIdRestoreToken());
+                usuarioService.GuardarUsuario(usuario);
 
-                return new ResponseEntity<>(new MessageResponse("Contraseña actualizada satisfactoriamente"), HttpStatus.OK);
+                utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
+                utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
+
+                return new ResponseEntity<>(new MessageResponse("Contraseña actualizada satisfactoriamente"),
+                        HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(new MessageResponse("Ocurrió un error al procesar su solicitud."), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new MessageResponse("Ocurrió un error al procesar su solicitud."),
+                        HttpStatus.NOT_FOUND);
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("Ocurrió un error al procesar su solicitud."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("Ocurrió un error al procesar su solicitud."),
+                    HttpStatus.NOT_FOUND);
         }
     }
 
@@ -151,7 +171,7 @@ public class RestorePasswordController {
                 "<h2>Hola,</h1>" +
                         "<p>Gracias por realizar tu solicitud de Restauración de Contraseña.</p>" +
                         "<br>Haz click en el link que se encuentra debajo para continuar con el proceso." +
-                        "<a href=" + url + ">Reiniciar mi Contraseña</a>";
+                        "<a href=" + url + ">Restaurar mi Contraseña</a>";
 
         helper.setSubject(asunto);
         helper.setText(contenido, true);

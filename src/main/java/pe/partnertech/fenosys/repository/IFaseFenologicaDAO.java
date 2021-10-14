@@ -15,16 +15,18 @@ import java.util.Set;
 @Repository
 public interface IFaseFenologicaDAO extends JpaRepository<FaseFenologica, Long> {
 
+    //FFPC: Fases Fenológicas de Planilla de Cosecha
+
     @Query(value = "SELECT ffpc.*, ff.*, pc.* " +
             "FROM fasesfenologicas_planillacosecha ffpc " +
             "JOIN fasefenologica ff ON ffpc.id_fasefenologica = ff.id_fasefenologica " +
             "JOIN planillacosecha pc ON ffpc.id_planillacosecha = pc.id_planillacosecha " +
             "WHERE pc.id_planillacosecha = ?1", nativeQuery = true)
-    Set<FaseFenologica> BuscarFasesFenologicas_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id);
+    Set<FaseFenologica> findFasesFenologicas_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id_planillacosecha);
 
     @Query(value = "DELETE " +
             "FROM fasesfenologicas_planillacosecha ffpc " +
             "WHERE ffpc.id_planillacosecha = ?1", nativeQuery = true)
     @Modifying
-    void EliminarFaseFenologica_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id);
+    void deleteFaseFenologica_From_FFPC_MiddleTable_By_IDPlanillaCosecha(Long id_planillacosecha);
 }

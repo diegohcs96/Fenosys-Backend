@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.partnertech.fenosys.model.Departamento;
 import pe.partnertech.fenosys.repository.IDepartamentoDAO;
@@ -18,8 +17,12 @@ import java.util.Set;
 @Transactional
 public class DepartamentoServiceImpl implements IDepartamentoService {
 
-    @Autowired
+    final
     IDepartamentoDAO data;
+
+    public DepartamentoServiceImpl(IDepartamentoDAO data) {
+        this.data = data;
+    }
 
     @Override
     public Set<Departamento> MostrarDepartamentos() {
@@ -27,12 +30,12 @@ public class DepartamentoServiceImpl implements IDepartamentoService {
     }
 
     @Override
-    public Set<Departamento> BuscarDepartamentos_IDPais(Long id) {
-        return data.findDepartamentosByIDPais(id);
+    public Set<Departamento> BuscarDepartamentos_By_IDPais(Long id_pais) {
+        return data.findDepartamentosByIDPais(id_pais);
     }
 
     @Override
-    public Optional<Departamento> BuscarDepartamento_IDProvincia(Long id) {
-        return data.findDeparamentoByIDProvincia(id);
+    public Optional<Departamento> BuscarDepartamento_By_IDProvincia(Long id_provincia) {
+        return data.findDepartamentoByIDProvincia(id_provincia);
     }
 }

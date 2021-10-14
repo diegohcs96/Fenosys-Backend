@@ -13,5 +13,5 @@ import java.util.Optional;
 @Repository
 public interface IImagenDAO extends JpaRepository<Imagen, Long> {
 
-    Optional<Imagen> findByNombreImagen(String nombreimagen);
+    Optional<Imagen> findByNombreImagen(String nombre_imagen);
 }

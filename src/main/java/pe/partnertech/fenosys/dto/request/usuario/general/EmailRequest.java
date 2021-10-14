@@ -2,18 +2,18 @@
  * Copyright (c) 2021. Developed by Diego Campos Sandoval.
  */
 
-package pe.partnertech.fenosys.dto.request.restore_password;
+package pe.partnertech.fenosys.dto.request.usuario.general;
 
-public class RestorePasswordRequest {
+public class EmailRequest {
 
     //Atributos
     private String emailUsuario;
 
     //Constructores
-    public RestorePasswordRequest() {
+    public EmailRequest() {
     }
 
-    public RestorePasswordRequest(String emailUsuario) {
+    public EmailRequest(String emailUsuario) {
         this.emailUsuario = emailUsuario;
     }
 

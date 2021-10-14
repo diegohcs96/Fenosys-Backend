@@ -5,7 +5,7 @@ INSERT INTO rol (rol) VALUES ('ROLE_AGRICULTOR');
 --------------------------------------------
 
 ----------------------MASTER QUERY--------------------------------
-INSERT INTO usuario(nombre_usuario, apellido_usuario, email_usuario, username_usuario, password_usuario) VALUES ('Fenosys', 'Master', 'master_fenosys@fenosys.com', 'master_fenosys', '$2a$10$PGh4RdTbxvsaRSlK8TCnx.5qZKyPd0E.lIKPoOwGLu7sRZwsB/XQy');
+INSERT INTO usuario(nombre_usuario, apellido_usuario, email_usuario, username_usuario, password_usuario, estado_usuario) VALUES ('Fenosys', 'Master', 'master_fenosys@fenosys.com', 'master_fenosys', '$2a$10$PGh4RdTbxvsaRSlK8TCnx.5qZKyPd0E.lIKPoOwGLu7sRZwsB/XQy', 'ACTIVO');
 
 INSERT INTO usuarios_roles(id_usuario, id_rol) VALUES (1,1);
 ------------------------------------------------------------------

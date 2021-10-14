@@ -2,13 +2,10 @@
  * Copyright (c) 2021. Developed by Diego Campos Sandoval.
  */
 
-package pe.partnertech.fenosys.controller.profile.agricultor;
+package pe.partnertech.fenosys.controller.util.multiuse_code;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 import pe.partnertech.fenosys.dto.response.general.ImagenResponse;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.dto.response.profile.BasicInfoUserResponse;
@@ -17,60 +14,66 @@ import pe.partnertech.fenosys.service.*;
 
 import java.util.Optional;
 
-@RestController
-@RequestMapping("/api")
-@CrossOrigin
-public class BasicInfoAgricultorController {
+public class Code_ProfileBasicInfo {
 
-    @Autowired
+    final
     IUsuarioService usuarioService;
 
-    @Autowired
+    final
     IImagenService imagenService;
 
-    @Autowired
+    final
     IPaisService paisService;
 
-    @Autowired
+    final
     IDepartamentoService departamentoService;
 
-    @Autowired
+    final
     IProvinciaService provinciaService;
 
-    @GetMapping("/agricultor/{id}/basicinfo")
-    @PreAuthorize("hasRole('ROLE_AGRICULTOR')")
-    public ResponseEntity<?> AgricultorProfile(@PathVariable("id") Long id) {
+    public Code_ProfileBasicInfo(IUsuarioService usuarioService, IImagenService imagenService,
+                                 IPaisService paisService, IDepartamentoService departamentoService,
+                                 IProvinciaService provinciaService) {
+        this.usuarioService = usuarioService;
+        this.imagenService = imagenService;
+        this.paisService = paisService;
+        this.departamentoService = departamentoService;
+        this.provinciaService = provinciaService;
+    }
 
-        Optional<Usuario> agricultor_data = usuarioService.BuscarUsuario_ID(id);
+    public ResponseEntity<?> ProfileUsuario(Long id_usuario) {
+        Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_IDUsuario(id_usuario);
 
-        if (agricultor_data.isPresent()) {
-            Usuario agricultor = agricultor_data.get();
+        if (usuario_data.isPresent()) {
+            Usuario usuario = usuario_data.get();
 
-            Optional<Imagen> imagen_data = imagenService.BuscarImagen_ID(agricultor.getImagenUsuario().getIdImagen());
+            Optional<Imagen> imagen_data = imagenService.BuscarImagen_ID(usuario.getImagenUsuario().getIdImagen());
 
             if (imagen_data.isPresent()) {
                 Imagen foto = imagen_data.get();
 
-                Distrito distrito = agricultor.getDistritoUsuario();
+                Distrito distrito = usuario.getDistritoUsuario();
                 Provincia provincia = SendProvinciaByDistrito(distrito);
                 Departamento departamento = SendDepartamentoByProvincia(provincia);
                 Pais pais = SendPaisByDepartamento(departamento);
 
                 return new ResponseEntity<>(new BasicInfoUserResponse(
-                        agricultor.getNombreUsuario(),
-                        agricultor.getApellidoUsuario(),
+                        usuario.getNombreUsuario(),
+                        usuario.getApellidoUsuario(),
                         pais.getNombrePais(),
                         departamento.getNombreDepartamento(),
                         provincia.getNombreProvincia(),
                         distrito.getNombreDistrito(),
-                        agricultor.getEmailUsuario(),
+                        usuario.getEmailUsuario(),
                         new ImagenResponse(foto.getNombreImagen(), foto.getUrlImagen())
                 ), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(new MessageResponse("No se encuentra la foto de perfil del usuario."), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new MessageResponse("No se encuentra la foto de perfil del usuario."),
+                        HttpStatus.NOT_FOUND);
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("No se encuentra información del perfil del usuario."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("No se encuentra información del perfil del usuario."),
+                    HttpStatus.NOT_FOUND);
         }
     }
 
@@ -81,13 +84,13 @@ public class BasicInfoAgricultorController {
     }
 
     Departamento SendDepartamentoByProvincia(Provincia provincia) {
-        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_IDProvincia(provincia.getIdProvincia());
+        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_By_IDProvincia(provincia.getIdProvincia());
 
         return departamento_data.orElse(null);
     }
 
     Pais SendPaisByDepartamento(Departamento departamento) {
-        Optional<Pais> pais_data = paisService.BuscarPais_IDDepartamento(departamento.getIdDepartamento());
+        Optional<Pais> pais_data = paisService.BuscarPais_By_IDDepartamento(departamento.getIdDepartamento());
 
         return pais_data.orElse(null);
     }

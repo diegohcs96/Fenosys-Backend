@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.partnertech.fenosys.model.PlanillaCosecha;
 import pe.partnertech.fenosys.repository.IPlanillaCosechaDAO;
@@ -17,39 +16,43 @@ import java.util.Optional;
 @Transactional
 public class PlanillaCosechaServiceImpl implements IPlanillaCosechaService {
 
-    @Autowired
+    //PCU: Planilla Cosecha de Usuario
+
+    final
     IPlanillaCosechaDAO data;
 
-    @Override
-    public Optional<PlanillaCosecha> BuscarPlanillaCosecha_ID(Long id) {
-        return data.findById(id);
+    public PlanillaCosechaServiceImpl(IPlanillaCosechaDAO data) {
+        this.data = data;
     }
 
     @Override
-    public Optional<PlanillaCosecha> BuscarPlanillaCosecha_CosechaYIDAgricultor(String nombrecosecha, Long idagricultor) {
-        return data.findByNombreCosechaYIDAgricultor(nombrecosecha, idagricultor);
+    public Optional<PlanillaCosecha> BuscarPlanillaCosecha_By_IDPlanillaCosecha(Long id_planillacosecha) {
+        return data.findById(id_planillacosecha);
     }
 
     @Override
-    public int GuardarPlanillaCosecha(PlanillaCosecha planillacosecha) {
-        int rpta = 0;
-
-        PlanillaCosecha pc = data.save(planillacosecha);
-
-        if (!pc.equals(null)) {
-            rpta = 1;
-        }
-
-        return rpta;
+    public Optional<PlanillaCosecha> BuscarPlanillaCosecha_By_NombrePlanillaCosechaAndIDAgricultor(String nombre_planillacosecha, Long id_agricultor) {
+        return data.findPlanillaCosechaByNombrePlanillaCosechaAndIDAgricultor(nombre_planillacosecha, id_agricultor);
     }
 
     @Override
-    public void EliminarPlanillaCosecha_From_PCU_MiddleTable(Long id) {
-        data.deletePlanillaCosechaFromPCUMiddleTable(id);
+    public boolean ValidarPlanillaCosecha_By_NombrePlanillaCosechaAndIDAgricultor(String nombre_planillacosecha,
+                                                                                  Long id_agricultor) {
+        return data.existsNombrePlanillaCosechaAndIDAgricultor(nombre_planillacosecha, id_agricultor);
     }
 
     @Override
-    public void EliminarPlanillaCosecha_This(Long id) {
-        data.deleteById(id);
+    public void GuardarPlanillaCosecha(PlanillaCosecha planillacosecha) {
+        data.save(planillacosecha);
+    }
+
+    @Override
+    public void EliminarPlanillaCosecha_From_PCU_MiddleTable(Long id_planillacosecha) {
+        data.deletePlanillaCosechaFromPCUMiddleTable(id_planillacosecha);
+    }
+
+    @Override
+    public void EliminarPlanillaCosecha_This(Long id_planillacosecha) {
+        data.deleteById(id_planillacosecha);
     }
 }

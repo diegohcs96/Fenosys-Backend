@@ -6,7 +6,6 @@ package pe.partnertech.fenosys.controller.usuario.signin;
 
 
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,22 +34,30 @@ import java.util.UUID;
 @CrossOrigin
 public class SigninMasterController {
 
-    @Autowired
+    final
     AuthenticationManager authenticationManager;
 
-    @Autowired
+    final
     JwtProvider jwtProvider;
 
-    @Autowired
+    final
     IUsuarioService usuarioService;
 
-    @Autowired
+    final
     IImagenService imagenService;
+
+    public SigninMasterController(AuthenticationManager authenticationManager, JwtProvider jwtProvider,
+                                  IUsuarioService usuarioService, IImagenService imagenService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtProvider = jwtProvider;
+        this.usuarioService = usuarioService;
+        this.imagenService = imagenService;
+    }
 
     @PostMapping("/master/signin")
     public ResponseEntity<?> SignInMaster(@RequestBody SigninRequest signInRequest) {
 
-        Optional<Usuario> master_data = usuarioService.BuscarUsuario_Signin(signInRequest.getUsernameUsuario());
+        Optional<Usuario> master_data = usuarioService.BuscarUsuario_By_UsernameOrEmail(signInRequest.getUsernameUsuario());
 
         if (master_data.isPresent()) {
             Usuario master = master_data.get();
@@ -60,30 +67,32 @@ public class SigninMasterController {
             if (foto == null) {
                 //Asignando Default Foto: Master
                 try {
-                    String nombrefoto = UUID.randomUUID() + master.getIdUsuario().toString() + UUID.randomUUID()
+                    String nombre_foto = UUID.randomUUID() + master.getIdUsuario().toString() + UUID.randomUUID()
                             + ".png";
 
-                    String urlfoto = ServletUriComponentsBuilder
+                    String url_foto = ServletUriComponentsBuilder
                             .fromCurrentContextPath()
                             .path("/photos/")
-                            .path(nombrefoto)
+                            .path(nombre_foto)
                             .toUriString();
 
                     InputStream fotoStream = getClass().getResourceAsStream("/static/img/MasterUser.png");
-                    byte[] fotofile = IOUtils.toByteArray(fotoStream);
+                    assert fotoStream != null;
+                    byte[] file_foto = IOUtils.toByteArray(fotoStream);
 
                     Imagen imagen = new Imagen(
-                            nombrefoto,
+                            nombre_foto,
                             "image/png",
-                            urlfoto,
-                            fotofile
+                            url_foto,
+                            file_foto
                     );
 
                     imagenService.GuardarImagen(imagen);
                     master.setImagenUsuario(imagen);
-                    usuarioService.GuardarUsuarioSemiFull(master);
+                    usuarioService.GuardarUsuario(master);
                 } catch (Exception e) {
-                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error al iniciar sesión." + e), HttpStatus.EXPECTATION_FAILED);
+                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error al iniciar sesión." + e),
+                            HttpStatus.EXPECTATION_FAILED);
                 }
             }
 
@@ -98,17 +107,24 @@ public class SigninMasterController {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
             if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
-                return new ResponseEntity<>(new JwtResponse(
-                        jwt,
-                        userDetails.getIdUsuario(),
-                        userDetails.getUsername(),
-                        userDetails.getAuthorities()
-                ), HttpStatus.OK);
+                if (userDetails.getEstadoUsuario().equals("ACTIVO")) {
+                    return new ResponseEntity<>(new JwtResponse(
+                            jwt,
+                            userDetails.getIdUsuario(),
+                            userDetails.getUsername(),
+                            userDetails.getAuthorities()
+                    ), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(new MessageResponse("El Usuario no se encuentra habilitado para acceder al sistema."),
+                            HttpStatus.BAD_REQUEST);
+                }
             } else {
-                return new ResponseEntity<>(new MessageResponse("No cumple con los permisos para acceder al sistema."), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new MessageResponse("No cumple con los permisos para acceder al sistema."),
+                        HttpStatus.BAD_REQUEST);
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("Usuario no encontrado en el sistema."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("Usuario no encontrado en el sistema."),
+                    HttpStatus.NOT_FOUND);
         }
     }
 }

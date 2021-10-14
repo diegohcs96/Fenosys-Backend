@@ -10,13 +10,19 @@ import java.util.Optional;
 
 public interface IPlanillaCosechaService {
 
-    Optional<PlanillaCosecha> BuscarPlanillaCosecha_ID(Long id);
+    //PCU: Planilla Cosecha de Usuario
 
-    Optional<PlanillaCosecha> BuscarPlanillaCosecha_CosechaYIDAgricultor(String nombrecosecha, Long idagricultor);
+    Optional<PlanillaCosecha> BuscarPlanillaCosecha_By_IDPlanillaCosecha(Long id_planillacosecha);
 
-    int GuardarPlanillaCosecha(PlanillaCosecha planillacosecha);
+    Optional<PlanillaCosecha> BuscarPlanillaCosecha_By_NombrePlanillaCosechaAndIDAgricultor(String nombre_planillacosecha,
+                                                                                            Long id_agricultor);
 
-    void EliminarPlanillaCosecha_From_PCU_MiddleTable(Long id);
+    boolean ValidarPlanillaCosecha_By_NombrePlanillaCosechaAndIDAgricultor(String nombre_planillacosecha,
+                                                                           Long id_agricultor);
 
-    void EliminarPlanillaCosecha_This(Long id);
+    void GuardarPlanillaCosecha(PlanillaCosecha planillacosecha);
+
+    void EliminarPlanillaCosecha_From_PCU_MiddleTable(Long id_planillacosecha);
+
+    void EliminarPlanillaCosecha_This(Long id_planillacosecha);
 }

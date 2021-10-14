@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.serviceimpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.partnertech.fenosys.model.Distrito;
 import pe.partnertech.fenosys.repository.IDistritoDAO;
@@ -18,8 +17,12 @@ import java.util.Set;
 @Transactional
 public class DistritoServiceImpl implements IDistritoService {
 
-    @Autowired
+    final
     IDistritoDAO data;
+
+    public DistritoServiceImpl(IDistritoDAO data) {
+        this.data = data;
+    }
 
     @Override
     public Set<Distrito> MostrarDistritos() {
@@ -27,12 +30,12 @@ public class DistritoServiceImpl implements IDistritoService {
     }
 
     @Override
-    public Set<Distrito> BuscarDistritos_IDProvincia(Long id) {
-        return data.findDistritosByIDProvincia(id);
+    public Set<Distrito> BuscarDistritos_By_IDProvincia(Long id_provincia) {
+        return data.findDistritosByIDProvincia(id_provincia);
     }
 
     @Override
-    public Optional<Distrito> BuscarDistrito_ID(Long id) {
-        return data.findById(id);
+    public Optional<Distrito> BuscarDistrito_By_IDDistrito(Long id_distrito) {
+        return data.findById(id_distrito);
     }
 }

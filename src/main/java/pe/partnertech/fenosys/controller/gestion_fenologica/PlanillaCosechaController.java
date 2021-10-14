@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.controller.gestion_fenologica;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,35 +23,42 @@ import java.util.*;
 @CrossOrigin
 public class PlanillaCosechaController {
 
-    @Autowired
+    final
     IPlanillaCosechaService planillaCosechaService;
 
-    @Autowired
+    final
     IUsuarioService usuarioService;
 
-    @Autowired
+    final
     IFaseFenologicaService faseFenologicaService;
 
-    @PostMapping("/agricultor/{id}/planilla/register")
+    public PlanillaCosechaController(IPlanillaCosechaService planillaCosechaService, IUsuarioService usuarioService,
+                                     IFaseFenologicaService faseFenologicaService) {
+        this.planillaCosechaService = planillaCosechaService;
+        this.usuarioService = usuarioService;
+        this.faseFenologicaService = faseFenologicaService;
+    }
+
+    @PostMapping("/agricultor/{id_agricultor}/planilla/register")
     @PreAuthorize("hasRole('ROLE_AGRICULTOR')")
-    public ResponseEntity<?> RegistrarPlanillaCosecha(@PathVariable("id") Long id,
+    public ResponseEntity<?> RegistrarPlanillaCosecha(@PathVariable("id_agricultor") Long id_agricultor,
                                                       @RequestBody PlanillaCosecha planillacosecha) {
 
-        Optional<Usuario> agricultor_data = usuarioService.BuscarUsuario_ID(id);
+        Optional<Usuario> agricultor_data = usuarioService.BuscarUsuario_By_IDUsuario(id_agricultor);
 
         if (agricultor_data.isPresent()) {
-            Optional<PlanillaCosecha> planillacosecha_data = planillaCosechaService.BuscarPlanillaCosecha_CosechaYIDAgricultor(planillacosecha.getNombreCosecha(), id);
-
-            if (planillacosecha_data.isPresent()) {
-                return new ResponseEntity<>(new MessageResponse("Ya se encuentra registrado esa planilla."), HttpStatus.BAD_REQUEST);
+            if (planillaCosechaService.ValidarPlanillaCosecha_By_NombrePlanillaCosechaAndIDAgricultor(
+                    planillacosecha.getNombreCosecha(), id_agricultor)) {
+                return new ResponseEntity<>(new MessageResponse("Ya se encuentra registrado esa planilla."),
+                        HttpStatus.CONFLICT);
             } else {
+                Usuario agricultor = agricultor_data.get();
+
                 PlanillaCosecha planillacosecha_agricultor = new PlanillaCosecha();
 
                 planillacosecha_agricultor.setNombreCosecha(planillacosecha.getNombreCosecha());
 
                 planillaCosechaService.GuardarPlanillaCosecha(planillacosecha_agricultor);
-
-                Usuario agricultor = agricultor_data.get();
 
                 Set<PlanillaCosecha> planillacosecha_list;
                 if (agricultor.getPlanillacosechaUsuario() == null) {
@@ -61,14 +67,17 @@ public class PlanillaCosechaController {
                     planillacosecha_list = agricultor.getPlanillacosechaUsuario();
                 }
                 planillacosecha_list.add(planillacosecha_agricultor);
+
                 agricultor.setPlanillacosechaUsuario(planillacosecha_list);
 
-                usuarioService.GuardarUsuarioSemiFull(agricultor);
+                usuarioService.GuardarUsuario(agricultor);
 
-                Optional<PlanillaCosecha> current_planillacosecha_data = planillaCosechaService.BuscarPlanillaCosecha_CosechaYIDAgricultor(planillacosecha.getNombreCosecha(), id);
+                Optional<PlanillaCosecha> planillacosecha_data =
+                        planillaCosechaService.BuscarPlanillaCosecha_By_NombrePlanillaCosechaAndIDAgricultor(
+                                planillacosecha.getNombreCosecha(), id_agricultor);
 
-                if (current_planillacosecha_data.isPresent()) {
-                    PlanillaCosecha config_planillacosecha = current_planillacosecha_data.get();
+                if (planillacosecha_data.isPresent()) {
+                    PlanillaCosecha config_planillacosecha = planillacosecha_data.get();
 
                     switch (planillacosecha_agricultor.getNombreCosecha()) {
                         case "Avena":
@@ -77,7 +86,7 @@ public class PlanillaCosechaController {
                             break;
                         case "Caña de Azúcar":
                             config_planillacosecha.setTipoCosecha("Permanente");
-                            GuardarConfiguracionCañaAzucar(config_planillacosecha);
+                            GuardarConfiguracionAzucar(config_planillacosecha);
                             break;
                         case "Kiwicha":
                             config_planillacosecha.setTipoCosecha("Anual");
@@ -89,7 +98,7 @@ public class PlanillaCosechaController {
                             break;
                         case "Limón":
                             config_planillacosecha.setTipoCosecha("Permanente");
-                            GuardarConfiguracionLimón(config_planillacosecha);
+                            GuardarConfiguracionLimon(config_planillacosecha);
                             break;
                         default:
                             config_planillacosecha.setTipoCosecha(null);
@@ -97,33 +106,65 @@ public class PlanillaCosechaController {
 
                     planillaCosechaService.GuardarPlanillaCosecha(config_planillacosecha);
 
-                    return new ResponseEntity<>(new MessageResponse("Se ha guardado la planilla satisfactoriamente."), HttpStatus.OK);
+                    return new ResponseEntity<>(new MessageResponse("Se ha guardado la planilla satisfactoriamente."),
+                            HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error durante la configuración de la Planilla."), HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error durante la configuración de la Planilla."),
+                            HttpStatus.BAD_REQUEST);
                 }
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("No se encontró información del usuario."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("No se encontró información del usuario."),
+                    HttpStatus.NOT_FOUND);
         }
     }
 
-    @DeleteMapping("/planilla/{id}/delete")
+    @DeleteMapping("/planilla/{id_planillacosecha}/delete")
     @PreAuthorize("hasRole('ROLE_AGRICULTOR')")
-    public ResponseEntity<?> EliminarPlanillaCosecha(@PathVariable("id") Long id) {
+    public ResponseEntity<?> EliminarPlanillaCosecha(@PathVariable("id_planillacosecha") Long id_planillacosecha) {
 
-        Optional<PlanillaCosecha> planillacosecha_data = planillaCosechaService.BuscarPlanillaCosecha_ID(id);
+        Optional<PlanillaCosecha> planillacosecha_data = planillaCosechaService.BuscarPlanillaCosecha_By_IDPlanillaCosecha(id_planillacosecha);
 
         if (planillacosecha_data.isPresent()) {
 
-            EliminarFasesFenologicas(id);
+            EliminarFasesFenologicas(id_planillacosecha);
 
-            planillaCosechaService.EliminarPlanillaCosecha_From_PCU_MiddleTable(id);
-            planillaCosechaService.EliminarPlanillaCosecha_This(id);
+            planillaCosechaService.EliminarPlanillaCosecha_From_PCU_MiddleTable(id_planillacosecha);
+            planillaCosechaService.EliminarPlanillaCosecha_This(id_planillacosecha);
 
-            return new ResponseEntity<>(new MessageResponse("Se ha eliminado la planilla satisfactoriamente."), HttpStatus.OK);
+            return new ResponseEntity<>(new MessageResponse("Se ha eliminado la planilla satisfactoriamente."),
+                    HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new MessageResponse("Ocurrió un error al eliminar la planilla."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("Ocurrió un error al eliminar la planilla."),
+                    HttpStatus.NOT_FOUND);
         }
+    }
+
+    private void FasesFenologicasT1(PlanillaCosecha planillaCosecha, FaseFenologica ff_01, FaseFenologica ff_02,
+                                    FaseFenologica ff_03, FaseFenologica ff_04, FaseFenologica ff_05,
+                                    FaseFenologica ff_06, FaseFenologica ff_07, FaseFenologica ff_08,
+                                    FaseFenologica ff_09) {
+        List<FaseFenologica> aux_lista_fasesfenologicas = Arrays.asList(ff_01, ff_02, ff_03, ff_04, ff_05,
+                ff_06, ff_07, ff_08, ff_09);
+        faseFenologicaService.GuardarFasesFenologicas_Config(aux_lista_fasesfenologicas);
+
+        Set<FaseFenologica> lista_fasesfenologicas = new HashSet<>(aux_lista_fasesfenologicas);
+        planillaCosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
+        planillaCosechaService.GuardarPlanillaCosecha(planillaCosecha);
+    }
+
+    private void FasesFenologicasT2(PlanillaCosecha planillaCosecha, FaseFenologica ff_01, FaseFenologica ff_02,
+                                    FaseFenologica ff_03) {
+        FaseFenologica ff_04 = new FaseFenologica("Fructificación", 4);
+
+        FaseFenologica ff_05 = new FaseFenologica("Maduración", 5);
+
+        List<FaseFenologica> aux_lista_fasesfenologicas = Arrays.asList(ff_01, ff_02, ff_03, ff_04, ff_05);
+        faseFenologicaService.GuardarFasesFenologicas_Config(aux_lista_fasesfenologicas);
+
+        Set<FaseFenologica> lista_fasesfenologicas = new HashSet<>(aux_lista_fasesfenologicas);
+        planillaCosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
+        planillaCosechaService.GuardarPlanillaCosecha(planillaCosecha);
     }
 
     //Avena Config
@@ -146,13 +187,7 @@ public class PlanillaCosechaController {
 
         FaseFenologica ff_09 = new FaseFenologica("Maduración córnea", 9);
 
-        List<FaseFenologica> aux_lista_fasesfenologicas = Arrays.asList(ff_01, ff_02, ff_03, ff_04, ff_05, ff_06, ff_07, ff_08, ff_09);
-        faseFenologicaService.GuardarFasesFenologicas_Config(aux_lista_fasesfenologicas);
-
-        Set<FaseFenologica> lista_fasesfenologicas = new HashSet<>(aux_lista_fasesfenologicas);
-        PlanillaCosecha current_planillacosecha = planillaCosecha;
-        current_planillacosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
-        planillaCosechaService.GuardarPlanillaCosecha(current_planillacosecha);
+        FasesFenologicasT1(planillaCosecha, ff_01, ff_02, ff_03, ff_04, ff_05, ff_06, ff_07, ff_08, ff_09);
     }
 
     //Kiwicha Config
@@ -175,38 +210,22 @@ public class PlanillaCosechaController {
 
         FaseFenologica ff_09 = new FaseFenologica("Maduración", 9);
 
-        List<FaseFenologica> aux_lista_fasesfenologicas = Arrays.asList(ff_01, ff_02, ff_03, ff_04, ff_05, ff_06, ff_07, ff_08, ff_09);
-        faseFenologicaService.GuardarFasesFenologicas_Config(aux_lista_fasesfenologicas);
-
-        Set<FaseFenologica> lista_fasesfenologicas = new HashSet<>(aux_lista_fasesfenologicas);
-        PlanillaCosecha current_planillacosecha = planillaCosecha;
-        current_planillacosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
-        planillaCosechaService.GuardarPlanillaCosecha(current_planillacosecha);
+        FasesFenologicasT1(planillaCosecha, ff_01, ff_02, ff_03, ff_04, ff_05, ff_06, ff_07, ff_08, ff_09);
     }
 
-    //Limón Config
-    public void GuardarConfiguracionLimón(PlanillaCosecha planillaCosecha) {
+    //Limon Config
+    public void GuardarConfiguracionLimon(PlanillaCosecha planillaCosecha) {
         FaseFenologica ff_01 = new FaseFenologica("Hinchazón de botón floral", 1);
 
         FaseFenologica ff_02 = new FaseFenologica("Apertura de botón floral", 2);
 
         FaseFenologica ff_03 = new FaseFenologica("Floración", 3);
 
-        FaseFenologica ff_04 = new FaseFenologica("Fructificación", 4);
-
-        FaseFenologica ff_05 = new FaseFenologica("Maduración", 5);
-
-        List<FaseFenologica> aux_lista_fasesfenologicas = Arrays.asList(ff_01, ff_02, ff_03, ff_04, ff_05);
-        faseFenologicaService.GuardarFasesFenologicas_Config(aux_lista_fasesfenologicas);
-
-        Set<FaseFenologica> lista_fasesfenologicas = new HashSet<>(aux_lista_fasesfenologicas);
-        PlanillaCosecha current_planillacosecha = planillaCosecha;
-        current_planillacosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
-        planillaCosechaService.GuardarPlanillaCosecha(current_planillacosecha);
+        FasesFenologicasT2(planillaCosecha, ff_01, ff_02, ff_03);
     }
 
-    //Caña de Azúcar Config
-    public void GuardarConfiguracionCañaAzucar(PlanillaCosecha planillaCosecha) {
+    //Caña de Azucar Config
+    public void GuardarConfiguracionAzucar(PlanillaCosecha planillaCosecha) {
         FaseFenologica ff_01 = new FaseFenologica("Emergencia", 1);
 
         FaseFenologica ff_02 = new FaseFenologica("Primer banderín", 2);
@@ -225,9 +244,8 @@ public class PlanillaCosechaController {
         faseFenologicaService.GuardarFasesFenologicas_Config(aux_lista_fasesfenologicas);
 
         Set<FaseFenologica> lista_fasesfenologicas = new HashSet<>(aux_lista_fasesfenologicas);
-        PlanillaCosecha current_planillacosecha = planillaCosecha;
-        current_planillacosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
-        planillaCosechaService.GuardarPlanillaCosecha(current_planillacosecha);
+        planillaCosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
+        planillaCosechaService.GuardarPlanillaCosecha(planillaCosecha);
     }
 
     //Mango Config
@@ -238,17 +256,7 @@ public class PlanillaCosechaController {
 
         FaseFenologica ff_03 = new FaseFenologica("Cuajado", 3);
 
-        FaseFenologica ff_04 = new FaseFenologica("Fructificación", 4);
-
-        FaseFenologica ff_05 = new FaseFenologica("Maduración", 5);
-
-        List<FaseFenologica> aux_lista_fasesfenologicas = Arrays.asList(ff_01, ff_02, ff_03, ff_04, ff_05);
-        faseFenologicaService.GuardarFasesFenologicas_Config(aux_lista_fasesfenologicas);
-
-        Set<FaseFenologica> lista_fasesfenologicas = new HashSet<>(aux_lista_fasesfenologicas);
-        PlanillaCosecha current_planillacosecha = planillaCosecha;
-        current_planillacosecha.setFasesfenologicasPlanillaCosecha(lista_fasesfenologicas);
-        planillaCosechaService.GuardarPlanillaCosecha(current_planillacosecha);
+        FasesFenologicasT2(planillaCosecha, ff_01, ff_02, ff_03);
     }
 
     //Eliminar las Fases Fenologicas de la Planilla de Cosecha
@@ -256,9 +264,6 @@ public class PlanillaCosechaController {
 
         Set<FaseFenologica> lista_fasesfenologicas =
                 faseFenologicaService.BuscarFasesFenologicas_From_FFPC_MiddleTable_By_IDPlanillaCosecha(idPlanillaCosecha);
-
-        List<FaseFenologica> listadelete_fasesfenologicas = new ArrayList<>();
-        listadelete_fasesfenologicas.addAll(lista_fasesfenologicas);
 
         for (FaseFenologica delete_fasefenologica : lista_fasesfenologicas) {
             faseFenologicaService.EliminarFaseFenologica_From_FFPC_MiddleTable_By_IDPlanillaCosecha(idPlanillaCosecha);
