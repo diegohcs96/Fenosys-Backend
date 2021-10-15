@@ -204,7 +204,7 @@ public class SignupAgricultorController {
         if (utilitytoken_data.isPresent()) {
             response.sendRedirect(baseurl + "/signup/agricultor/verify/" + token);
         } else {
-            response.sendRedirect(baseurl);
+            response.sendRedirect(baseurl + "/error/403");
         }
     }
 
