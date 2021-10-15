@@ -150,7 +150,7 @@ public class SignupAdminController {
         if (utilitytoken_data.isPresent()) {
             response.sendRedirect(baseurl + "/signup/admin/" + token);
         } else {
-            response.sendRedirect(baseurl);
+            response.sendRedirect(baseurl + "/error/403");
         }
     }
 

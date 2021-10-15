@@ -118,7 +118,7 @@ public class RestorePasswordController {
         if (utilitytoken_data.isPresent()) {
             response.sendRedirect(baseurl + "/restore/password/" + token);
         } else {
-            response.sendRedirect(baseurl);
+            response.sendRedirect(baseurl + "/error/403");
         }
     }
 
