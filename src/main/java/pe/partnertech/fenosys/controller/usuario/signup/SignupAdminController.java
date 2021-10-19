@@ -5,7 +5,6 @@
 package pe.partnertech.fenosys.controller.usuario.signup;
 
 import net.bytebuddy.utility.RandomString;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SetUserRol;
@@ -26,7 +24,10 @@ import pe.partnertech.fenosys.dto.request.usuario.general.EmailRequest;
 import pe.partnertech.fenosys.dto.request.usuario.signup.SignupAdminRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.enums.RolNombre;
-import pe.partnertech.fenosys.model.*;
+import pe.partnertech.fenosys.model.Distrito;
+import pe.partnertech.fenosys.model.Rol;
+import pe.partnertech.fenosys.model.Usuario;
+import pe.partnertech.fenosys.model.UtilityToken;
 import pe.partnertech.fenosys.service.*;
 import pe.partnertech.fenosys.tools.UtilityFenosys;
 
@@ -65,7 +66,6 @@ public class SignupAdminController {
     final
     TemplateEngine templateEngine;
     Code_SignupValidations code_signupValidations;
-    Code_UploadFoto code_uploadFoto;
     @Value("${front.baseurl}")
     private String baseurl;
     @Value("${image.mail.url}")
@@ -134,7 +134,7 @@ public class SignupAdminController {
                 }
 
                 return new ResponseEntity<>(new MessageResponse("Se envió el correo a la bandeja de entrada del " +
-                        "Solicitante de manera satisfactoria."), HttpStatus.OK);
+                        "solicitante correctamente."), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(new MessageResponse("Ocurrió un error en la solicitud de Registro."),
                         HttpStatus.NOT_FOUND);
@@ -155,8 +155,7 @@ public class SignupAdminController {
     }
 
     @PutMapping("/admin/signup")
-    public ResponseEntity<?> SignupAdminProcess(@RequestPart("usuario") SignupAdminRequest signupAdminRequest,
-                                                @RequestPart("foto") MultipartFile foto) {
+    public ResponseEntity<?> SignupAdminProcess(@RequestBody SignupAdminRequest signupAdminRequest) {
 
         Optional<UtilityToken> utilitytoken_data =
                 utilityTokenService.BuscarUtilityToken_By_Token(signupAdminRequest.getUtilitytokenUsuario());
@@ -167,73 +166,54 @@ public class SignupAdminController {
             Optional<Usuario> admin_data = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
 
             if (admin_data.isPresent()) {
-                Optional<Distrito> distrito_data = distritoService.BuscarDistrito_By_IDDistrito(
-                        signupAdminRequest.getDistritoUsuario()
-                );
+                Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_ADMIN);
 
-                if (distrito_data.isPresent()) {
-                    Distrito distrito = distrito_data.get();
-                    Usuario admin = admin_data.get();
-
-                    admin.setNombreUsuario(signupAdminRequest.getNombreUsuario());
-                    admin.setApellidoUsuario(signupAdminRequest.getApellidoUsuario());
-                    admin.setPasswordUsuario(passwordEncoder.encode(signupAdminRequest.getPasswordUsuario()));
-                    admin.setDistritoUsuario(distrito);
-
-                    //Asignando Rol: Administrador
-                    Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_ADMIN);
-
-                    if (Code_SetUserRol.SetUserRol(admin, rol_data))
-                        return new ResponseEntity<>(new MessageResponse("Ocurrió un error al otorgar sus permisos correspondientes."),
-                                HttpStatus.NOT_FOUND);
-
-                    //Asignando Fecha de Registro Actual
-                    admin.setFecharegistroUsuario(LocalDate.now());
-
-                    //Cambiando Estado de Cuenta a ACTIVO
-                    admin.setEstadoUsuario("ACTIVO");
-
-                    //Asignando Imagen
+                if (rol_data.isPresent()) {
                     try {
-                        if (!foto.isEmpty()) {
-                            Imagen imagen = new Imagen(
-                                    code_uploadFoto.getNombreFoto(),
-                                    foto.getContentType(),
-                                    code_uploadFoto.getUrlFoto(),
-                                    foto.getBytes()
-                            );
+                        Optional<Distrito> distrito_data = distritoService.BuscarDistrito_By_IDDistrito(
+                                signupAdminRequest.getDistritoUsuario());
 
-                            imagenService.GuardarImagen(imagen);
-                            admin.setImagenUsuario(imagen);
-                        } else {
+                        if (distrito_data.isPresent()) {
+                            Distrito distrito = distrito_data.get();
+                            Usuario admin = admin_data.get();
+
+                            admin.setNombreUsuario(signupAdminRequest.getNombreUsuario());
+                            admin.setApellidoUsuario(signupAdminRequest.getApellidoUsuario());
+                            admin.setPasswordUsuario(passwordEncoder.encode(signupAdminRequest.getPasswordUsuario()));
+                            admin.setDistritoUsuario(distrito);
+
+                            //Asignando Rol: Administrador
+                            Code_SetUserRol.SetUserRol(admin, rol_data);
+
+                            //Asignando Fecha de Registro Actual
+                            admin.setFecharegistroUsuario(LocalDate.now());
+
+                            //Cambiando Estado de Cuenta a ACTIVO
+                            admin.setEstadoUsuario("ACTIVO");
+
+                            //Asignando Foto por Defecto: Agricultor
                             InputStream fotoStream = getClass().getResourceAsStream("/static/img/AdminUser.png");
-                            assert fotoStream != null;
-                            byte[] file_foto = IOUtils.toByteArray(fotoStream);
+                            Code_UploadFoto.AssignFoto(admin, fotoStream, imagenService);
 
-                            Imagen imagen = new Imagen(
-                                    code_uploadFoto.getNombreFoto() + "png",
-                                    "image/png",
-                                    code_uploadFoto.getUrlFoto() + "png",
-                                    file_foto
-                            );
+                            utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
+                            utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
 
-                            imagenService.GuardarImagen(imagen);
-                            admin.setImagenUsuario(imagen);
+                            usuarioService.GuardarUsuario(admin);
+
+                            return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente."),
+                                    HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(new MessageResponse("Ocurrió un error al buscar su Ubicación."),
+                                    HttpStatus.NOT_FOUND);
                         }
                     } catch (Exception e) {
-                        return new ResponseEntity<>(new MessageResponse("No se puede subir el archivo " + e),
+                        return new ResponseEntity<>(new MessageResponse("Ocurrió un error al asignar la foto de perfil " +
+                                "por defecto." + e),
                                 HttpStatus.EXPECTATION_FAILED);
                     }
-
-                    utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
-                    utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
-
-                    usuarioService.GuardarUsuarioMultipart(admin, foto);
-
-                    return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente."),
-                            HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error al buscar su Ubicación."),
+                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error al otorgar sus permisos " +
+                            "correspondientes."),
                             HttpStatus.NOT_FOUND);
                 }
             } else {

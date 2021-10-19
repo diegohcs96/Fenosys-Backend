@@ -13,14 +13,11 @@ import java.util.Set;
 
 public class Code_SetUserRol {
 
-    public static boolean SetUserRol(Usuario usuario, Optional<Rol> rol_data) {
+    public static void SetUserRol(Usuario usuario, Optional<Rol> rol_data) {
         if (rol_data.isPresent()) {
             Set<Rol> roles = new HashSet<>();
             roles.add(rol_data.get());
             usuario.setRolUsuario(roles);
-        } else {
-            return true;
         }
-        return false;
     }
 }
