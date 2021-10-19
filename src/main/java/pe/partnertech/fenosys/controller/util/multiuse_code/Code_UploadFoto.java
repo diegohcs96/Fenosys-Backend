@@ -4,6 +4,7 @@
 
 package pe.partnertech.fenosys.controller.util.multiuse_code;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -15,28 +16,17 @@ import pe.partnertech.fenosys.model.Usuario;
 import pe.partnertech.fenosys.service.IImagenService;
 import pe.partnertech.fenosys.service.IUsuarioService;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 public class Code_UploadFoto {
 
-    //Atributos
-    String nombreFoto;
-    String urlFoto;
-    //Constructores
-    public Code_UploadFoto(String nombreFoto, String urlFoto) {
-        this.nombreFoto = nombreFoto;
-        this.urlFoto = urlFoto;
-    }
+    public static void AssignFoto(Usuario usuario, InputStream fotoStream, IImagenService imagenService) throws IOException {
 
-    public static Code_UploadFoto AssignFoto(MultipartFile foto, Usuario usuario) {
-        String separador_foto = Pattern.quote(".");
-        String[] formato_foto = Objects.requireNonNull(foto.getOriginalFilename()).split(separador_foto);
-
-        String nombre_foto = UUID.randomUUID() + usuario.getIdUsuario().toString() +
-                UUID.randomUUID() + "." + formato_foto[formato_foto.length - 1];
+        String nombre_foto = UUID.randomUUID() + usuario.getIdUsuario().toString() + UUID.randomUUID()
+                + ".png";
 
         String url_foto = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -44,10 +34,18 @@ public class Code_UploadFoto {
                 .path(nombre_foto)
                 .toUriString();
 
-        return new Code_UploadFoto(
+        assert fotoStream != null;
+        byte[] file_foto = IOUtils.toByteArray(fotoStream);
+
+        Imagen imagen = new Imagen(
                 nombre_foto,
-                url_foto
+                "image/png",
+                url_foto,
+                file_foto
         );
+
+        imagenService.GuardarImagen(imagen);
+        usuario.setImagenUsuario(imagen);
     }
 
     public ResponseEntity<?> UpdateFoto(Long id_usuario, @RequestPart("foto") MultipartFile foto,
@@ -65,10 +63,8 @@ public class Code_UploadFoto {
                     Imagen imagen = imagen_data.get();
 
                     if (!foto.isEmpty()) {
-                        imagen.setNombreImagen(AssignFoto(foto, usuario).nombreFoto);
-                        imagen.setTipoarchivoImagen(foto.getContentType());
-                        imagen.setUrlImagen(AssignFoto(foto, usuario).urlFoto);
                         imagen.setArchivoImagen(foto.getBytes());
+                        imagen.setTipoarchivoImagen(foto.getContentType());
 
                         imagenService.GuardarImagen(imagen);
                         usuario.setImagenUsuario(imagen);
@@ -92,14 +88,5 @@ public class Code_UploadFoto {
             return new ResponseEntity<>(new MessageResponse("No se encontró información del usuario."),
                     HttpStatus.NOT_FOUND);
         }
-    }
-
-    //Getters y Setters
-    public String getNombreFoto() {
-        return nombreFoto;
-    }
-
-    public String getUrlFoto() {
-        return urlFoto;
     }
 }

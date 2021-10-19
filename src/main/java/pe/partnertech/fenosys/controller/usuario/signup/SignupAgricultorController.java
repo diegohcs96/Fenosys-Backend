@@ -5,7 +5,6 @@
 package pe.partnertech.fenosys.controller.usuario.signup;
 
 import net.bytebuddy.utility.RandomString;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -14,16 +13,18 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SetUserRol;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SignupValidations;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UploadFoto;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UtilityToken;
 import pe.partnertech.fenosys.dto.request.usuario.general.UtilityTokenRequest;
 import pe.partnertech.fenosys.dto.request.usuario.signup.SignupAgricultorRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
 import pe.partnertech.fenosys.enums.RolNombre;
-import pe.partnertech.fenosys.model.*;
+import pe.partnertech.fenosys.model.Distrito;
+import pe.partnertech.fenosys.model.Rol;
+import pe.partnertech.fenosys.model.Usuario;
+import pe.partnertech.fenosys.model.UtilityToken;
 import pe.partnertech.fenosys.service.*;
 import pe.partnertech.fenosys.tools.UtilityFenosys;
 
@@ -36,10 +37,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api")
@@ -84,8 +82,7 @@ public class SignupAgricultorController {
     }
 
     @PostMapping("/agricultor/signup")
-    public ResponseEntity<?> SignUpPostulante(@RequestPart("usuario") SignupAgricultorRequest signupAgricultorRequest,
-                                              @RequestPart("foto") MultipartFile foto,
+    public ResponseEntity<?> SignUpPostulante(@RequestBody SignupAgricultorRequest signupAgricultorRequest,
                                               HttpServletRequest request) {
 
         Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_EmailUsuario(signupAgricultorRequest.getEmailUsuario());
@@ -93,105 +90,92 @@ public class SignupAgricultorController {
         if (usuario_data.isPresent()) {
             return code_signupValidations.SignupValidation(usuario_data);
         } else {
-            if (usuarioService.ValidarUsername(signupAgricultorRequest.getUsernameUsuario())) {
-                return new ResponseEntity<>(new MessageResponse("El Usuario ya se encuentra en uso."), HttpStatus.CONFLICT);
-            } else {
-                Optional<Distrito> distrito_data =
-                        distritoService.BuscarDistrito_By_IDDistrito(signupAgricultorRequest.getDistritoUsuario());
+            Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_AGRICULTOR);
 
-                if (distrito_data.isPresent()) {
-                    Distrito distrito = distrito_data.get();
+            if (rol_data.isPresent()) {
+                try {
+                    Optional<Distrito> distrito_data =
+                            distritoService.BuscarDistrito_By_IDDistrito(signupAgricultorRequest.getDistritoUsuario());
 
-                    Usuario agricultor =
-                            new Usuario(
-                                    signupAgricultorRequest.getNombreUsuario(),
-                                    signupAgricultorRequest.getApellidoUsuario(),
-                                    signupAgricultorRequest.getEmailUsuario(),
-                                    signupAgricultorRequest.getUsernameUsuario(),
-                                    passwordEncoder.encode(signupAgricultorRequest.getPasswordUsuario()),
-                                    distrito
-                            );
-
-                    //Asignando Rol: Agricultor
-                    Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_AGRICULTOR);
-
-                    if (Code_SetUserRol.SetUserRol(agricultor, rol_data))
-                        return new ResponseEntity<>(new MessageResponse("Ocurrió un error al otorgar sus permisos correspondientes."),
-                                HttpStatus.NOT_FOUND);
-
-                    //Asignando Fecha de Registro Actual
-                    agricultor.setFecharegistroUsuario(LocalDate.now());
-
-                    //Asignando Estado de Cuenta: PENDIENTE
-                    agricultor.setEstadoUsuario("PENDIENTE");
-
-                    //Asignando Imagen
-                    try {
-                        String separador_foto = Pattern.quote(".");
-                        String[] formato_foto = Objects.requireNonNull(foto.getOriginalFilename()).split(separador_foto);
-                        String nombre_foto = UUID.randomUUID() + "" + UUID.randomUUID()
-                                + "." + formato_foto[formato_foto.length - 1];
-
-                        String url_foto = ServletUriComponentsBuilder
-                                .fromCurrentContextPath()
-                                .path("/photos/")
-                                .path(nombre_foto)
-                                .toUriString();
-
-                        if (!foto.isEmpty()) {
-                            Imagen imagen = new Imagen(
-                                    nombre_foto,
-                                    foto.getContentType(),
-                                    url_foto,
-                                    foto.getBytes()
-                            );
-
-                            imagenService.GuardarImagen(imagen);
-                            agricultor.setImagenUsuario(imagen);
+                    if (distrito_data.isPresent()) {
+                        if (usuarioService.ValidarUsername(signupAgricultorRequest.getUsernameUsuario())) {
+                            return new ResponseEntity<>(new MessageResponse("El Usuario ya se encuentra en uso."),
+                                    HttpStatus.CONFLICT);
                         } else {
-                            InputStream fotoStream = getClass().getResourceAsStream("/static/img/AgroUser.png");
-                            assert fotoStream != null;
-                            byte[] file_foto = IOUtils.toByteArray(fotoStream);
+                            Distrito distrito = distrito_data.get();
 
-                            Imagen imagen = new Imagen(
-                                    nombre_foto + "png",
-                                    "image/png",
-                                    url_foto + "png",
-                                    file_foto
-                            );
+                            Usuario usuario =
+                                    new Usuario(
+                                            signupAgricultorRequest.getNombreUsuario(),
+                                            signupAgricultorRequest.getApellidoUsuario(),
+                                            signupAgricultorRequest.getEmailUsuario(),
+                                            signupAgricultorRequest.getUsernameUsuario(),
+                                            passwordEncoder.encode(signupAgricultorRequest.getPasswordUsuario()),
+                                            distrito
+                                    );
 
-                            imagenService.GuardarImagen(imagen);
-                            agricultor.setImagenUsuario(imagen);
+                            usuarioService.GuardarUsuario(usuario);
+
+                            Optional<Usuario> agricultor_data =
+                                    usuarioService.BuscarUsuario_By_EmailUsuario(signupAgricultorRequest.getEmailUsuario());
+
+                            if (agricultor_data.isPresent()) {
+                                Usuario agricultor = agricultor_data.get();
+
+                                //Asignando Rol: Agricultor
+                                Code_SetUserRol.SetUserRol(agricultor, rol_data);
+
+                                //Asignando Fecha de Registro Actual
+                                agricultor.setFecharegistroUsuario(LocalDate.now());
+
+                                //Asignando Estado de Cuenta: PENDIENTE
+                                agricultor.setEstadoUsuario("PENDIENTE");
+
+                                //Asignando Foto por Defecto: Agricultor
+                                InputStream fotoStream = getClass().getResourceAsStream("/static/img/AgroUser.png");
+                                Code_UploadFoto.AssignFoto(usuario, fotoStream, imagenService);
+
+                                String token = RandomString.make(50);
+
+                                //Generando Token: Verificación
+                                UtilityToken utilityToken = new UtilityToken(
+                                        token,
+                                        "Signup Agricultor Verify",
+                                        LocalDateTime.now().plusHours(72)
+                                );
+
+                                Code_UtilityToken.UtilityTokenUser(agricultor, utilityToken, utilityTokenService, usuarioService);
+
+                                String url = UtilityFenosys.GenerarUrl(request) + "/api/agricultor_verify_gateway?token=" + token;
+
+                                EnviarCorreo(signupAgricultorRequest.getEmailUsuario(), url);
+
+                                usuarioService.GuardarUsuario(agricultor);
+
+                                return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente. Revise su " +
+                                        "bandeja de entrada para verificar su cuenta, recuerde que dispone no más de 72 horas para " +
+                                        "culminar dicho proceso. De lo contrario, deberá rellenar el formulario nuevamente."),
+                                        HttpStatus.OK);
+
+                            } else {
+                                return new ResponseEntity<>(new MessageResponse("Ocurrió un error durante el proceso " +
+                                        "de registro de datos."),
+                                        HttpStatus.NOT_FOUND);
+                            }
                         }
-
-                        String token = RandomString.make(50);
-
-                        UtilityToken utilityToken = new UtilityToken(
-                                token,
-                                "Signup Agricultor Verify",
-                                LocalDateTime.now().plusHours(72)
-                        );
-
-                        Code_UtilityToken.UtilityTokenUser(agricultor, utilityToken, utilityTokenService, usuarioService);
-
-                        String url = UtilityFenosys.GenerarUrl(request) + "/api/agricultor_verify_gateway?token=" + token;
-
-                        EnviarCorreo(signupAgricultorRequest.getEmailUsuario(), url);
-                    } catch (Exception e) {
-                        return new ResponseEntity<>(new MessageResponse("No se puede subir el archivo " + e),
-                                HttpStatus.EXPECTATION_FAILED);
+                    } else {
+                        return new ResponseEntity<>(new MessageResponse("Ocurrió un error al buscar su Ubicación."),
+                                HttpStatus.NOT_FOUND);
                     }
-
-                    usuarioService.GuardarUsuarioMultipart(agricultor, foto);
-
-                    return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente. Revise su " +
-                            "bandeja de entrada para verificar su cuenta, recuerde que dispone no más de 72 horas para " +
-                            "culminar dicho proceso. De lo contrario, deberá rellenar el formulario nuevamente."),
-                            HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error al buscar su Ubicación."),
-                            HttpStatus.NOT_FOUND);
+                } catch (Exception e) {
+                    return new ResponseEntity<>(new MessageResponse("Ocurrió un error al asignar la foto de perfil " +
+                            "por defecto." + e),
+                            HttpStatus.EXPECTATION_FAILED);
                 }
+            } else {
+                return new ResponseEntity<>(new MessageResponse("Ocurrió un error al otorgar sus permisos " +
+                        "correspondientes."),
+                        HttpStatus.NOT_FOUND);
             }
         }
     }
