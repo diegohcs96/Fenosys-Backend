@@ -21,7 +21,5 @@ public interface IUtilityTokenService {
 
     Set<UtilityToken> BuscarUtilityToken_By_IDUsuarioAndRazonUtilityToken(Long id_usuario, String razon_utilitytoken);
 
-    void EliminarUtilityToken_MiddleTable(Long id_utilitytoken);
-
-    void EliminarUtilityToken_This(Long id_utilitytoken);
+    void EliminarUtilityToken(Long id_utilitytoken);
 }

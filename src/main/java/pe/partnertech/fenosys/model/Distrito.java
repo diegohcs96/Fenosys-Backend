@@ -6,6 +6,7 @@ package pe.partnertech.fenosys.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Table(name = "distrito")
@@ -21,6 +22,15 @@ public class Distrito implements Serializable {
 
     @Column(name = "nombre_distrito")
     private String nombreDistrito;
+
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "distritoUsuario")
+    private Set<Usuario> usuariosDistrito;
+
+    @ManyToOne
+    @JoinTable(name = "provincia_distritos",
+            joinColumns = @JoinColumn(name = "id_distrito", referencedColumnName = "id_distrito"),
+            inverseJoinColumns = @JoinColumn(name = "id_provincia", referencedColumnName = "id_provincia"))
+    private Provincia provinciaDistrito;
 
     //Constructores
     public Distrito() {
@@ -45,5 +55,21 @@ public class Distrito implements Serializable {
 
     public void setNombreDistrito(String nombreDistrito) {
         this.nombreDistrito = nombreDistrito;
+    }
+
+    public Set<Usuario> getUsuariosDistrito() {
+        return usuariosDistrito;
+    }
+
+    public void setUsuariosDistrito(Set<Usuario> usuariosDistrito) {
+        this.usuariosDistrito = usuariosDistrito;
+    }
+
+    public Provincia getProvinciaDistrito() {
+        return provinciaDistrito;
+    }
+
+    public void setProvinciaDistrito(Provincia provinciaDistrito) {
+        this.provinciaDistrito = provinciaDistrito;
     }
 }

@@ -13,10 +13,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_AssignDistrito;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SetUserRol;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SignupValidations;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UploadFoto;
-import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UtilityToken;
 import pe.partnertech.fenosys.dto.request.usuario.general.UtilityTokenRequest;
 import pe.partnertech.fenosys.dto.request.usuario.signup.SignupAgricultorRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
@@ -64,7 +64,7 @@ public class SignupAgricultorController {
 
     final
     IUtilityTokenService utilityTokenService;
-    Code_SignupValidations code_signupValidations;
+
     @Value("${front.baseurl}")
     private String baseurl;
 
@@ -82,13 +82,13 @@ public class SignupAgricultorController {
     }
 
     @PostMapping("/agricultor/signup")
-    public ResponseEntity<?> SignUpPostulante(@RequestBody SignupAgricultorRequest signupAgricultorRequest,
+    public ResponseEntity<?> SignupAgricultor(@RequestBody SignupAgricultorRequest signupAgricultorRequest,
                                               HttpServletRequest request) {
 
         Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_EmailUsuario(signupAgricultorRequest.getEmailUsuario());
 
         if (usuario_data.isPresent()) {
-            return code_signupValidations.SignupValidation(usuario_data);
+            return Code_SignupValidations.SignupValidationResponse(usuario_data);
         } else {
             Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_AGRICULTOR);
 
@@ -102,16 +102,13 @@ public class SignupAgricultorController {
                             return new ResponseEntity<>(new MessageResponse("El Usuario ya se encuentra en uso."),
                                     HttpStatus.CONFLICT);
                         } else {
-                            Distrito distrito = distrito_data.get();
-
                             Usuario usuario =
                                     new Usuario(
                                             signupAgricultorRequest.getNombreUsuario(),
                                             signupAgricultorRequest.getApellidoUsuario(),
                                             signupAgricultorRequest.getEmailUsuario(),
                                             signupAgricultorRequest.getUsernameUsuario(),
-                                            passwordEncoder.encode(signupAgricultorRequest.getPasswordUsuario()),
-                                            distrito
+                                            passwordEncoder.encode(signupAgricultorRequest.getPasswordUsuario())
                                     );
 
                             usuarioService.GuardarUsuario(usuario);
@@ -121,6 +118,10 @@ public class SignupAgricultorController {
 
                             if (agricultor_data.isPresent()) {
                                 Usuario agricultor = agricultor_data.get();
+
+                                //Agregando Usuario al Distrito
+                                Distrito distrito = distrito_data.get();
+                                Code_AssignDistrito.AgregarUsuarioToDistrito(agricultor, distrito, usuarioService);
 
                                 //Asignando Rol: Agricultor
                                 Code_SetUserRol.SetUserRol(agricultor, rol_data);
@@ -133,7 +134,7 @@ public class SignupAgricultorController {
 
                                 //Asignando Foto por Defecto: Agricultor
                                 InputStream fotoStream = getClass().getResourceAsStream("/static/img/AgroUser.png");
-                                Code_UploadFoto.AssignFoto(usuario, fotoStream, imagenService);
+                                Code_UploadFoto.AssignFoto(agricultor, fotoStream, imagenService);
 
                                 String token = RandomString.make(50);
 
@@ -141,10 +142,10 @@ public class SignupAgricultorController {
                                 UtilityToken utilityToken = new UtilityToken(
                                         token,
                                         "Signup Agricultor Verify",
-                                        LocalDateTime.now().plusHours(72)
+                                        LocalDateTime.now().plusHours(72),
+                                        agricultor
                                 );
-
-                                Code_UtilityToken.UtilityTokenUser(agricultor, utilityToken, utilityTokenService, usuarioService);
+                                utilityTokenService.GuardarUtilityToken(utilityToken);
 
                                 String url = UtilityFenosys.GenerarUrl(request) + "/api/agricultor_verify_gateway?token=" + token;
 
@@ -200,7 +201,8 @@ public class SignupAgricultorController {
         if (utilitytoken_data.isPresent()) {
             UtilityToken utilitytoken = utilitytoken_data.get();
 
-            Optional<Usuario> agricultor_data = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
+            Optional<Usuario> agricultor_data =
+                    usuarioService.BuscarUsuario_By_IDUtilityToken(utilitytoken.getIdUtilityToken());
 
             if (agricultor_data.isPresent()) {
                 Usuario agricultor = agricultor_data.get();
@@ -208,8 +210,7 @@ public class SignupAgricultorController {
                 agricultor.setEstadoUsuario("ACTIVO");
                 usuarioService.GuardarUsuario(agricultor);
 
-                utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
-                utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
+                utilityTokenService.EliminarUtilityToken(utilitytoken.getIdUtilityToken());
 
                 return new ResponseEntity<>(new MessageResponse("Se ha verificado el usuario satisfactoriamente."),
                         HttpStatus.OK);

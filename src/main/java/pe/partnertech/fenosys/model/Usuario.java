@@ -43,37 +43,23 @@ public class Usuario implements Serializable {
     @Column(name = "fecharegistro_usuario")
     private LocalDate fecharegistroUsuario;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "usuario_imagen",
-            joinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"),
-            inverseJoinColumns = @JoinColumn(name = "id_imagen", referencedColumnName = "id_imagen"))
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "usuarioImagen")
     private Imagen imagenUsuario;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "usuario_distrito",
+    @ManyToOne
+    @JoinTable(name = "distrito_usuarios",
             joinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"),
             inverseJoinColumns = @JoinColumn(name = "id_distrito", referencedColumnName = "id_distrito"))
     private Distrito distritoUsuario;
 
-    @ManyToMany(cascade =
-            {
-                    CascadeType.DETACH,
-                    CascadeType.MERGE,
-                    CascadeType.REFRESH
-            }, fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(name = "usuarios_roles",
             joinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"),
             inverseJoinColumns = @JoinColumn(name = "id_rol", referencedColumnName = "id_rol"))
-    private Set<Rol> rolUsuario = new HashSet<>();
+    private Set<Rol> rolesUsuario = new HashSet<>();
 
-    @OneToMany(cascade = {
-            CascadeType.DETACH,
-            CascadeType.REFRESH
-    }, fetch = FetchType.LAZY)
-    @JoinTable(name = "utilitytokens_usuario",
-            joinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"),
-            inverseJoinColumns = @JoinColumn(name = "id_utilitytoken", referencedColumnName = "id_utilitytoken"))
-    private Set<UtilityToken> utilitytokenUsuario;
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "usuarioUtilityToken")
+    private Set<UtilityToken> utilitytokensUsuario;
 
     @OneToMany(cascade = {
             CascadeType.DETACH,
@@ -89,13 +75,12 @@ public class Usuario implements Serializable {
     }
 
     public Usuario(String nombreUsuario, String apellidoUsuario, String emailUsuario, String usernameUsuario,
-                   String passwordUsuario, Distrito distritoUsuario) {
+                   String passwordUsuario) {
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
         this.emailUsuario = emailUsuario;
         this.usernameUsuario = usernameUsuario;
         this.passwordUsuario = passwordUsuario;
-        this.distritoUsuario = distritoUsuario;
     }
 
     //Getters y Setters
@@ -179,20 +164,20 @@ public class Usuario implements Serializable {
         this.distritoUsuario = distritoUsuario;
     }
 
-    public Set<Rol> getRolUsuario() {
-        return rolUsuario;
+    public Set<Rol> getRolesUsuario() {
+        return rolesUsuario;
     }
 
-    public void setRolUsuario(Set<Rol> rolUsuario) {
-        this.rolUsuario = rolUsuario;
+    public void setRolesUsuario(Set<Rol> rolesUsuario) {
+        this.rolesUsuario = rolesUsuario;
     }
 
-    public Set<UtilityToken> getUtilitytokenUsuario() {
-        return utilitytokenUsuario;
+    public Set<UtilityToken> getUtilitytokensUsuario() {
+        return utilitytokensUsuario;
     }
 
-    public void setUtilitytokenUsuario(Set<UtilityToken> utilitytokenUsuario) {
-        this.utilitytokenUsuario = utilitytokenUsuario;
+    public void setUtilitytokensUsuario(Set<UtilityToken> utilitytokensUsuario) {
+        this.utilitytokensUsuario = utilitytokensUsuario;
     }
 
     public Set<PlanillaCosecha> getPlanillacosechaUsuario() {

@@ -23,22 +23,21 @@ public class Provincia implements Serializable {
     @Column(name = "nombre_provincia")
     private String nombreProvincia;
 
-    @OneToMany(cascade = {
-            CascadeType.DETACH,
-            CascadeType.REFRESH
-    }, fetch = FetchType.LAZY)
-    @JoinTable(name = "distritos_provincia",
-            joinColumns = @JoinColumn(name = "id_provincia", referencedColumnName = "id_provincia"),
-            inverseJoinColumns = @JoinColumn(name = "id_distrito", referencedColumnName = "id_distrito"))
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "provinciaDistrito")
     private Set<Distrito> distritosProvincia;
+
+    @ManyToOne
+    @JoinTable(name = "departamento_provincias",
+            joinColumns = @JoinColumn(name = "id_provincia", referencedColumnName = "id_provincia"),
+            inverseJoinColumns = @JoinColumn(name = "id_departamento", referencedColumnName = "id_departamento"))
+    private Departamento departamentoProvincia;
 
     //Constructores
     public Provincia() {
     }
 
-    public Provincia(String nombreProvincia, Set<Distrito> distritosProvincia) {
+    public Provincia(String nombreProvincia) {
         this.nombreProvincia = nombreProvincia;
-        this.distritosProvincia = distritosProvincia;
     }
 
     //Getters y Setters
@@ -64,5 +63,13 @@ public class Provincia implements Serializable {
 
     public void setDistritosProvincia(Set<Distrito> distritosProvincia) {
         this.distritosProvincia = distritosProvincia;
+    }
+
+    public Departamento getDepartamentoProvincia() {
+        return departamentoProvincia;
+    }
+
+    public void setDepartamentoProvincia(Departamento departamentoProvincia) {
+        this.departamentoProvincia = departamentoProvincia;
     }
 }

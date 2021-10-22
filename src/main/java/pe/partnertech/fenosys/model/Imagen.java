@@ -31,15 +31,22 @@ public class Imagen implements Serializable {
     @Column(name = "archivo_imagen")
     private byte[] archivoImagen;
 
+    @OneToOne
+    @JoinTable(name = "usuario_imagen",
+            joinColumns = @JoinColumn(name = "id_imagen", referencedColumnName = "id_imagen"),
+            inverseJoinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"))
+    private Usuario usuarioImagen;
+
     //Constructores
     public Imagen() {
     }
 
-    public Imagen(String nombreImagen, String tipoarchivoImagen, String urlImagen, byte[] archivoImagen) {
+    public Imagen(String nombreImagen, String tipoarchivoImagen, String urlImagen, byte[] archivoImagen, Usuario usuarioImagen) {
         this.nombreImagen = nombreImagen;
         this.tipoarchivoImagen = tipoarchivoImagen;
         this.urlImagen = urlImagen;
         this.archivoImagen = archivoImagen;
+        this.usuarioImagen = usuarioImagen;
     }
 
     //Getters y Setters
@@ -81,5 +88,13 @@ public class Imagen implements Serializable {
 
     public void setArchivoImagen(byte[] archivoImagen) {
         this.archivoImagen = archivoImagen;
+    }
+
+    public Usuario getUsuarioImagen() {
+        return usuarioImagen;
+    }
+
+    public void setUsuarioImagen(Usuario usuarioImagen) {
+        this.usuarioImagen = usuarioImagen;
     }
 }

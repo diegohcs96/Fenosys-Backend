@@ -8,6 +8,7 @@ import pe.partnertech.fenosys.enums.RolNombre;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Table(name = "rol")
@@ -24,6 +25,9 @@ public class Rol implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", length = 20)
     private RolNombre nombreRol;
+
+    @ManyToMany(mappedBy = "rolesUsuario")
+    Set<Usuario> usuariosRoles;
 
     //Constructores
     public Rol() {
@@ -49,5 +53,13 @@ public class Rol implements Serializable {
 
     public void setNombreRol(RolNombre nombreRol) {
         this.nombreRol = nombreRol;
+    }
+
+    public Set<Usuario> getUsuariosRoles() {
+        return usuariosRoles;
+    }
+
+    public void setUsuariosRoles(Set<Usuario> usuariosRoles) {
+        this.usuariosRoles = usuariosRoles;
     }
 }

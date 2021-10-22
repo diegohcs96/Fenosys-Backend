@@ -16,10 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import pe.partnertech.fenosys.controller.util.multiuse_code.Code_AssignDistrito;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SetUserRol;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_SignupValidations;
 import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UploadFoto;
-import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UtilityToken;
 import pe.partnertech.fenosys.dto.request.usuario.general.EmailRequest;
 import pe.partnertech.fenosys.dto.request.usuario.signup.SignupAdminRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
@@ -51,23 +51,31 @@ public class SignupAdminController {
 
     final
     IUsuarioService usuarioService;
+
     final
     IUtilityTokenService utilityTokenService;
+
     final
     JavaMailSender mailSender;
+
     final
     IDistritoService distritoService;
+
     final
     IRolService rolService;
+
     final
     PasswordEncoder passwordEncoder;
+
     final
     IImagenService imagenService;
+
     final
     TemplateEngine templateEngine;
-    Code_SignupValidations code_signupValidations;
+
     @Value("${front.baseurl}")
     private String baseurl;
+
     @Value("${image.mail.url}")
     private String logomail_url;
 
@@ -93,7 +101,7 @@ public class SignupAdminController {
         Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_EmailUsuario(emailRequest.getEmailUsuario());
 
         if (usuario_data.isPresent()) {
-            return code_signupValidations.SignupValidation(usuario_data);
+            return Code_SignupValidations.SignupValidationResponse(usuario_data);
         } else {
             String token = RandomString.make(50);
 
@@ -118,10 +126,10 @@ public class SignupAdminController {
                     UtilityToken utilityToken = new UtilityToken(
                             token,
                             "Signup Admin",
-                            LocalDateTime.now().plusHours(72)
+                            LocalDateTime.now().plusHours(72),
+                            admin
                     );
-
-                    Code_UtilityToken.UtilityTokenUser(admin, utilityToken, utilityTokenService, usuarioService);
+                    utilityTokenService.GuardarUtilityToken(utilityToken);
 
                     String url = UtilityFenosys.GenerarUrl(request) + "/api/admin_register_gateway?token=" + token;
 
@@ -163,7 +171,8 @@ public class SignupAdminController {
         if (utilitytoken_data.isPresent()) {
             UtilityToken utilitytoken = utilitytoken_data.get();
 
-            Optional<Usuario> admin_data = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
+            Optional<Usuario> admin_data =
+                    usuarioService.BuscarUsuario_By_IDUtilityToken(utilitytoken.getIdUtilityToken());
 
             if (admin_data.isPresent()) {
                 Optional<Rol> rol_data = rolService.BuscarRol_Nombre(RolNombre.ROLE_ADMIN);
@@ -174,13 +183,15 @@ public class SignupAdminController {
                                 signupAdminRequest.getDistritoUsuario());
 
                         if (distrito_data.isPresent()) {
-                            Distrito distrito = distrito_data.get();
                             Usuario admin = admin_data.get();
+
+                            //Agregando Usuario al Distrito
+                            Distrito distrito = distrito_data.get();
+                            Code_AssignDistrito.AgregarUsuarioToDistrito(admin, distrito, usuarioService);
 
                             admin.setNombreUsuario(signupAdminRequest.getNombreUsuario());
                             admin.setApellidoUsuario(signupAdminRequest.getApellidoUsuario());
                             admin.setPasswordUsuario(passwordEncoder.encode(signupAdminRequest.getPasswordUsuario()));
-                            admin.setDistritoUsuario(distrito);
 
                             //Asignando Rol: Administrador
                             Code_SetUserRol.SetUserRol(admin, rol_data);
@@ -195,10 +206,9 @@ public class SignupAdminController {
                             InputStream fotoStream = getClass().getResourceAsStream("/static/img/AdminUser.png");
                             Code_UploadFoto.AssignFoto(admin, fotoStream, imagenService);
 
-                            utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
-                            utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
-
                             usuarioService.GuardarUsuario(admin);
+
+                            utilityTokenService.EliminarUtilityToken(utilitytoken.getIdUtilityToken());
 
                             return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente."),
                                     HttpStatus.OK);

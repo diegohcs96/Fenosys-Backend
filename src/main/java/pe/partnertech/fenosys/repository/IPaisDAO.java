@@ -18,10 +18,7 @@ public interface IPaisDAO extends JpaRepository<Pais, Long> {
     @Query("SELECT p FROM Pais p")
     Set<Pais> findAllPaises();
 
-    @Query(value = "SELECT dp.*, p.*, d.* " +
-            "FROM departamentos_pais dp " +
-            "JOIN pais p ON dp.id_pais = p.id_pais " +
-            "JOIN departamento d ON dp.id_departamento = d.id_departamento " +
-            "WHERE dp.id_departamento = ?1", nativeQuery = true)
-    Optional<Pais> findPaisByIDDepartamento(Long id_pais);
+    @Query("SELECT p FROM Pais p JOIN Departamento d ON d.paisDepartamento.idPais = p.idPais " +
+            "WHERE d.idDepartamento = ?1")
+    Optional<Pais> findPaisByIDDepartamento(Long id_departamento);
 }
