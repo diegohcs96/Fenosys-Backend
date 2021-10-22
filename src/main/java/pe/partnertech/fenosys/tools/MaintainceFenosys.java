@@ -31,22 +31,6 @@ public class MaintainceFenosys {
         this.usuarioService = usuarioService;
     }
 
-    private void UtilityTokenList(Set<UtilityToken> utilitytoken_list) {
-        for (UtilityToken utilitytoken : utilitytoken_list) {
-            Optional<Usuario> usuario_timedout = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
-
-            if (usuario_timedout.isPresent()) {
-                Usuario usuario = usuario_timedout.get();
-
-                utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
-                utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
-
-                usuarioService.EliminarUsuario_From_UTU_MiddleTable(usuario.getIdUsuario());
-                usuarioService.EliminarUsuario_This(usuario.getIdUsuario());
-            }
-        }
-    }
-
     @Scheduled(fixedRate = 60000)
     public void EliminarUsuariosTimedOutSignupAdmin() {
         Set<UtilityToken> utilitytoken_list = utilityTokenService.BuscarUtilityToken_By_ExpiracionAndRazon(LocalDateTime.now(),
@@ -69,10 +53,20 @@ public class MaintainceFenosys {
                 "Restore Password");
 
         for (UtilityToken restoretoken : utilitytoken_list) {
-            long id = restoretoken.getIdUtilityToken();
+            utilityTokenService.EliminarUtilityToken(restoretoken.getIdUtilityToken());
+        }
+    }
 
-            utilityTokenService.EliminarUtilityToken_MiddleTable(id);
-            utilityTokenService.EliminarUtilityToken_This(id);
+    private void UtilityTokenList(Set<UtilityToken> utilitytoken_list) {
+        for (UtilityToken utilitytoken : utilitytoken_list) {
+            Optional<Usuario> usuario_timedout =
+                    usuarioService.BuscarUsuario_By_IDUtilityToken(utilitytoken.getIdUtilityToken());
+
+            if (usuario_timedout.isPresent()) {
+                Usuario usuario = usuario_timedout.get();
+
+                usuarioService.EliminarUsuario(usuario.getIdUsuario());
+            }
         }
     }
 }

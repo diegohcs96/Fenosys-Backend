@@ -29,14 +29,22 @@ public class UtilityToken implements Serializable {
     @Column(name = "expiracion_utilitytoken")
     private LocalDateTime expiracionUtilityToken;
 
+    @ManyToOne
+    @JoinTable(name = "usuario_utilitytokens",
+            joinColumns = @JoinColumn(name = "id_utilitytoken", referencedColumnName = "id_utilitytoken"),
+            inverseJoinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario"))
+    private Usuario usuarioUtilityToken;
+
     //Constructores
     public UtilityToken() {
     }
 
-    public UtilityToken(String tokenUtilityToken, String razonUtilityToken, LocalDateTime expiracionUtilityToken) {
+    public UtilityToken(String tokenUtilityToken, String razonUtilityToken, LocalDateTime expiracionUtilityToken,
+                        Usuario usuarioUtilityToken) {
         this.tokenUtilityToken = tokenUtilityToken;
         this.razonUtilityToken = razonUtilityToken;
         this.expiracionUtilityToken = expiracionUtilityToken;
+        this.usuarioUtilityToken = usuarioUtilityToken;
     }
 
     //Getters y Setters
@@ -70,5 +78,13 @@ public class UtilityToken implements Serializable {
 
     public void setExpiracionUtilityToken(LocalDateTime expiracionUtilityToken) {
         this.expiracionUtilityToken = expiracionUtilityToken;
+    }
+
+    public Usuario getUsuarioUtilityToken() {
+        return usuarioUtilityToken;
+    }
+
+    public void setUsuarioUtilityToken(Usuario usuarioUtilityToken) {
+        this.usuarioUtilityToken = usuarioUtilityToken;
     }
 }

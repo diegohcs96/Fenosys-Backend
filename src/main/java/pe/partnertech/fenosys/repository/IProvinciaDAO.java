@@ -18,17 +18,11 @@ public interface IProvinciaDAO extends JpaRepository<Provincia, Long> {
     @Query("SELECT p FROM Provincia p")
     Set<Provincia> findAllProvincias();
 
-    @Query(value = "SELECT pd.*, d.*, p.* " +
-            "FROM provincias_departamento pd " +
-            "JOIN departamento d ON pd.id_departamento = d.id_departamento " +
-            "JOIN provincia p ON pd.id_provincia = p.id_provincia " +
-            "WHERE pd.id_departamento = ?1", nativeQuery = true)
+    @Query("SELECT p FROM Provincia p JOIN Departamento d ON p.departamentoProvincia.idDepartamento = d.idDepartamento " +
+            "WHERE d.idDepartamento = ?1")
     Set<Provincia> findProvinciasByIDDepartamento(Long id_departamento);
 
-    @Query(value = "SELECT dp.*, p.*, d.* " +
-            "FROM distritos_provincia dp " +
-            "JOIN provincia p ON dp.id_provincia = p.id_provincia " +
-            "JOIN distrito d ON dp.id_distrito = d.id_distrito " +
-            "WHERE dp.id_distrito = ?1", nativeQuery = true)
+    @Query("SELECT p FROM Provincia p JOIN Distrito d ON d.provinciaDistrito.idProvincia = p.idProvincia " +
+            "WHERE d.idDistrito = ?1")
     Optional<Provincia> findProvinciaByIDDistrito(Long id_distrito);
 }

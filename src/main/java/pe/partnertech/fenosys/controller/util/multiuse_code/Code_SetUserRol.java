@@ -17,7 +17,7 @@ public class Code_SetUserRol {
         if (rol_data.isPresent()) {
             Set<Rol> roles = new HashSet<>();
             roles.add(rol_data.get());
-            usuario.setRolUsuario(roles);
+            usuario.setRolesUsuario(roles);
         }
     }
 }

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class Code_SignupValidations {
 
-    public ResponseEntity<?> SignupValidation(Optional<Usuario> usuario_data) {
+    public static ResponseEntity<?> SignupValidationResponse(Optional<Usuario> usuario_data) {
         Usuario usuario = usuario_data.get();
 
         switch (usuario.getEstadoUsuario()) {
@@ -26,7 +26,9 @@ public class Code_SignupValidations {
                 return new ResponseEntity<>(new MessageResponse("Ya se encuentra en uso este correo electrónico por " +
                         "un usuario registrado en el sistema."), HttpStatus.CONFLICT);
             default:
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new MessageResponse("Ocurrió un error al determinar el " +
+                        "estado de un usuario existente."),
+                        HttpStatus.BAD_REQUEST);
         }
     }
 }

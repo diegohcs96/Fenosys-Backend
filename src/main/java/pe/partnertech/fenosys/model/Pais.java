@@ -23,22 +23,15 @@ public class Pais implements Serializable {
     @Column(name = "nombre_pais")
     private String nombrePais;
 
-    @OneToMany(cascade = {
-            CascadeType.DETACH,
-            CascadeType.REFRESH
-    }, fetch = FetchType.LAZY)
-    @JoinTable(name = "departamentos_pais",
-            joinColumns = @JoinColumn(name = "id_pais", referencedColumnName = "id_pais"),
-            inverseJoinColumns = @JoinColumn(name = "id_departamento", referencedColumnName = "id_departamento"))
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "paisDepartamento")
     private Set<Departamento> departamentosPais;
 
     //Constructores
     public Pais() {
     }
 
-    public Pais(String nombrePais, Set<Departamento> departamentosPais) {
+    public Pais(String nombrePais) {
         this.nombrePais = nombrePais;
-        this.departamentosPais = departamentosPais;
     }
 
     //Getters y Setters
@@ -56,5 +49,13 @@ public class Pais implements Serializable {
 
     public void setNombrePais(String nombrePais) {
         this.nombrePais = nombrePais;
+    }
+
+    public Set<Departamento> getDepartamentosPais() {
+        return departamentosPais;
+    }
+
+    public void setDepartamentosPais(Set<Departamento> departamentosPais) {
+        this.departamentosPais = departamentosPais;
     }
 }

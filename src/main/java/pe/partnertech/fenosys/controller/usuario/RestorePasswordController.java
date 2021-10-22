@@ -13,7 +13,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import pe.partnertech.fenosys.controller.util.multiuse_code.Code_UtilityToken;
 import pe.partnertech.fenosys.dto.request.usuario.general.EmailRequest;
 import pe.partnertech.fenosys.dto.request.usuario.general.UpdatePasswordRequest;
 import pe.partnertech.fenosys.dto.response.general.MessageResponse;
@@ -74,18 +73,15 @@ public class RestorePasswordController {
 
             if ((long) lista_utilitytoken.size() < 1) {
                 try {
-                    //Cambiando Estado de Cuenta: BLOQUEADO
-                    usuario.setEstadoUsuario("BLOQUEADO");
-
                     String token = RandomString.make(50);
 
                     UtilityToken utilityToken = new UtilityToken(
                             token,
                             "Restore Password",
-                            LocalDateTime.now().plusMinutes(10)
+                            LocalDateTime.now().plusMinutes(10),
+                            usuario
                     );
-
-                    Code_UtilityToken.UtilityTokenUser(usuario, utilityToken, utilityTokenService, usuarioService);
+                    utilityTokenService.GuardarUtilityToken(utilityToken);
 
                     String url = UtilityFenosys.GenerarUrl(request) + "/api/restore_password_gateway?token=" + token;
 
@@ -116,7 +112,19 @@ public class RestorePasswordController {
         Optional<UtilityToken> utilitytoken_data = utilityTokenService.BuscarUtilityToken_By_Token(token);
 
         if (utilitytoken_data.isPresent()) {
-            response.sendRedirect(baseurl + "/restore/password/" + token);
+            Optional<Usuario> usuario_data =
+                    usuarioService.BuscarUsuario_By_IDUtilityToken(utilitytoken_data.get().getIdUtilityToken());
+
+            if (usuario_data.isPresent()) {
+                Usuario usuario = usuario_data.get();
+
+                usuario.setEstadoUsuario("BLOQUEADO");
+                usuarioService.GuardarUsuario(usuario);
+
+                response.sendRedirect(baseurl + "/restore/password/" + token);
+            } else {
+                response.sendRedirect(baseurl + "/error/403");
+            }
         } else {
             response.sendRedirect(baseurl + "/error/403");
         }
@@ -130,20 +138,18 @@ public class RestorePasswordController {
         if (utilitytoken_data.isPresent()) {
             UtilityToken utilitytoken = utilitytoken_data.get();
 
-            Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_UtilityToken(utilitytoken);
+            Optional<Usuario> usuario_data = usuarioService.BuscarUsuario_By_IDUtilityToken(utilitytoken.getIdUtilityToken());
 
             if (usuario_data.isPresent()) {
                 Usuario usuario = usuario_data.get();
 
                 usuario.setPasswordUsuario(passwordEncoder.encode(updatePasswordRequest.getPasswordUsuario()));
 
-                //Cambiando Estado de Cuenta: BLOQUEADO
+                //Cambiando Estado de Cuenta: ACTIVO
                 usuario.setEstadoUsuario("ACTIVO");
 
                 usuarioService.GuardarUsuario(usuario);
-
-                utilityTokenService.EliminarUtilityToken_MiddleTable(utilitytoken.getIdUtilityToken());
-                utilityTokenService.EliminarUtilityToken_This(utilitytoken.getIdUtilityToken());
+                utilityTokenService.EliminarUtilityToken(utilitytoken.getIdUtilityToken());
 
                 return new ResponseEntity<>(new MessageResponse("Contraseña actualizada satisfactoriamente"),
                         HttpStatus.OK);

@@ -84,12 +84,11 @@ public class SigninMasterController {
                             nombre_foto,
                             "image/png",
                             url_foto,
-                            file_foto
+                            file_foto,
+                            master
                     );
 
                     imagenService.GuardarImagen(imagen);
-                    master.setImagenUsuario(imagen);
-                    usuarioService.GuardarUsuario(master);
                 } catch (Exception e) {
                     return new ResponseEntity<>(new MessageResponse("Ocurrió un error al iniciar sesión." + e),
                             HttpStatus.EXPECTATION_FAILED);

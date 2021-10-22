@@ -46,12 +46,7 @@ public class UtilityTokenServiceImpl implements IUtilityTokenService {
     }
 
     @Override
-    public void EliminarUtilityToken_MiddleTable(Long id_utilitytoken) {
-        data.deleteUtilityTokenFromMiddleTable(id_utilitytoken);
-    }
-
-    @Override
-    public void EliminarUtilityToken_This(Long id_utilitytoken) {
+    public void EliminarUtilityToken(Long id_utilitytoken) {
         data.deleteById(id_utilitytoken);
     }
 }

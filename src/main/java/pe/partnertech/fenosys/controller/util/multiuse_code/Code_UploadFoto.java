@@ -41,11 +41,11 @@ public class Code_UploadFoto {
                 nombre_foto,
                 "image/png",
                 url_foto,
-                file_foto
+                file_foto,
+                usuario
         );
 
         imagenService.GuardarImagen(imagen);
-        usuario.setImagenUsuario(imagen);
     }
 
     public ResponseEntity<?> UpdateFoto(Long id_usuario, @RequestPart("foto") MultipartFile foto,
@@ -67,8 +67,6 @@ public class Code_UploadFoto {
                         imagen.setTipoarchivoImagen(foto.getContentType());
 
                         imagenService.GuardarImagen(imagen);
-                        usuario.setImagenUsuario(imagen);
-                        usuarioService.GuardarUsuarioMultipart(usuario, foto);
 
                         return new ResponseEntity<>(new MessageResponse("Se ha actualizado su foto de perfil satisfactoriamente."),
                                 HttpStatus.OK);

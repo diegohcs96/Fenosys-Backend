@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.controller.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,17 +28,25 @@ import java.util.Set;
 @CrossOrigin
 public class UbicacionController {
 
-    @Autowired
+    final
     IPaisService paisService;
 
-    @Autowired
+    final
     IDepartamentoService departamentoService;
 
-    @Autowired
+    final
     IProvinciaService provinciaService;
 
-    @Autowired
+    final
     IDistritoService distritoService;
+
+    public UbicacionController(IPaisService paisService, IDepartamentoService departamentoService,
+                               IProvinciaService provinciaService, IDistritoService distritoService) {
+        this.paisService = paisService;
+        this.departamentoService = departamentoService;
+        this.provinciaService = provinciaService;
+        this.distritoService = distritoService;
+    }
 
     @GetMapping("/ubicacion/show/paises")
     public ResponseEntity<?> MostrarPaises() {
@@ -47,13 +54,11 @@ public class UbicacionController {
         Set<PaisResponse> lista_paises = new HashSet<>();
 
         paisService.MostrarPaises().forEach(
-                pais -> {
-                    lista_paises.add(
-                            new PaisResponse(
-                                    pais.getIdPais(),
-                                    pais.getNombrePais()
-                            ));
-                });
+                pais -> lista_paises.add(
+                        new PaisResponse(
+                                pais.getIdPais(),
+                                pais.getNombrePais()
+                        )));
 
         return new ResponseEntity<>(lista_paises, HttpStatus.OK);
     }
@@ -64,39 +69,35 @@ public class UbicacionController {
         Set<DepartamentoResponse> lista_departamentos = new HashSet<>();
 
         departamentoService.MostrarDepartamentos().forEach(
-                departamento -> {
-                    lista_departamentos.add(
-                            new DepartamentoResponse(
-                                    BuscarPaisByDepartamento(departamento.getIdDepartamento()),
-                                    departamento.getIdDepartamento(),
-                                    departamento.getNombreDepartamento()
-                            ));
-                });
+                departamento -> lista_departamentos.add(
+                        new DepartamentoResponse(
+                                BuscarPaisByDepartamento(departamento.getIdDepartamento()),
+                                departamento.getIdDepartamento(),
+                                departamento.getNombreDepartamento()
+                        )));
 
         return new ResponseEntity<>(lista_departamentos, HttpStatus.OK);
     }
 
-    @GetMapping("/ubicacion/find/departamentos/from_pais/{id}")
-    public ResponseEntity<?> BuscarDepartamentosPorPais(@PathVariable("id") Long id) {
+    @GetMapping("/ubicacion/find/departamentos/from_pais/{id_pais}")
+    public ResponseEntity<?> BuscarDepartamentosPorPais(@PathVariable("id_pais") Long id_pais) {
 
         Set<DepartamentoResponse> lista_departamentos = new HashSet<>();
 
-        departamentoService.BuscarDepartamentos_By_IDPais(id).forEach(
-                departamento -> {
-                    lista_departamentos.add(
-                            new DepartamentoResponse(
-                                    BuscarPaisByDepartamento(departamento.getIdDepartamento()),
-                                    departamento.getIdDepartamento(),
-                                    departamento.getNombreDepartamento()
-                            ));
-                });
+        departamentoService.BuscarDepartamentos_By_IDPais(id_pais).forEach(
+                departamento -> lista_departamentos.add(
+                        new DepartamentoResponse(
+                                BuscarPaisByDepartamento(departamento.getIdDepartamento()),
+                                departamento.getIdDepartamento(),
+                                departamento.getNombreDepartamento()
+                        )));
 
         return new ResponseEntity<>(lista_departamentos, HttpStatus.OK);
     }
 
-    Long BuscarPaisByDepartamento(Long iddepartamento) {
+    Long BuscarPaisByDepartamento(Long id_departamento) {
 
-        Optional<Pais> pais_data = paisService.BuscarPais_By_IDDepartamento(iddepartamento);
+        Optional<Pais> pais_data = paisService.BuscarPais_By_IDDepartamento(id_departamento);
 
         if (pais_data.isPresent()) {
             Pais pais = pais_data.get();
@@ -113,39 +114,35 @@ public class UbicacionController {
         Set<ProvinciaResponse> lista_provincias = new HashSet<>();
 
         provinciaService.MostrarProvincias().forEach(
-                provincia -> {
-                    lista_provincias.add(
-                            new ProvinciaResponse(
-                                    BuscarDepartamentoByProvincia(provincia.getIdProvincia()),
-                                    provincia.getIdProvincia(),
-                                    provincia.getNombreProvincia()
-                            ));
-                });
+                provincia -> lista_provincias.add(
+                        new ProvinciaResponse(
+                                BuscarDepartamentoByProvincia(provincia.getIdProvincia()),
+                                provincia.getIdProvincia(),
+                                provincia.getNombreProvincia()
+                        )));
 
         return new ResponseEntity<>(lista_provincias, HttpStatus.OK);
     }
 
-    @GetMapping("/ubicacion/find/provincias/from_departamento/{id}")
-    public ResponseEntity<?> BuscarProvinciasPorDepartamento(@PathVariable("id") Long id) {
+    @GetMapping("/ubicacion/find/provincias/from_departamento/{id_departamento}")
+    public ResponseEntity<?> BuscarProvinciasPorDepartamento(@PathVariable("id_departamento") Long id_departamento) {
 
         Set<ProvinciaResponse> lista_provincias = new HashSet<>();
 
-        provinciaService.BuscarProvincias_IDDepartamento(id).forEach(
-                provincia -> {
-                    lista_provincias.add(
-                            new ProvinciaResponse(
-                                    BuscarDepartamentoByProvincia(provincia.getIdProvincia()),
-                                    provincia.getIdProvincia(),
-                                    provincia.getNombreProvincia()
-                            ));
-                });
+        provinciaService.BuscarProvincias_IDDepartamento(id_departamento).forEach(
+                provincia -> lista_provincias.add(
+                        new ProvinciaResponse(
+                                BuscarDepartamentoByProvincia(provincia.getIdProvincia()),
+                                provincia.getIdProvincia(),
+                                provincia.getNombreProvincia()
+                        )));
 
         return new ResponseEntity<>(lista_provincias, HttpStatus.OK);
     }
 
-    Long BuscarDepartamentoByProvincia(Long idprovincia) {
+    Long BuscarDepartamentoByProvincia(Long id_provincia) {
 
-        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_By_IDProvincia(idprovincia);
+        Optional<Departamento> departamento_data = departamentoService.BuscarDepartamento_By_IDProvincia(id_provincia);
 
         if (departamento_data.isPresent()) {
             Departamento departamento = departamento_data.get();
@@ -162,39 +159,35 @@ public class UbicacionController {
         Set<DistritoResponse> lista_distritos = new HashSet<>();
 
         distritoService.MostrarDistritos().forEach(
-                distrito -> {
-                    lista_distritos.add(
-                            new DistritoResponse(
-                                    BuscarProvinciaByDistrito(distrito.getIdDistrito()),
-                                    distrito.getIdDistrito(),
-                                    distrito.getNombreDistrito()
-                            ));
-                });
+                distrito -> lista_distritos.add(
+                        new DistritoResponse(
+                                BuscarProvinciaByDistrito(distrito.getIdDistrito()),
+                                distrito.getIdDistrito(),
+                                distrito.getNombreDistrito()
+                        )));
 
         return new ResponseEntity<>(lista_distritos, HttpStatus.OK);
     }
 
-    @GetMapping("/ubicacion/find/distritos/from_provincia/{id}")
-    public ResponseEntity<?> BuscarDistritosPorProvincia(@PathVariable("id") Long id) {
+    @GetMapping("/ubicacion/find/distritos/from_provincia/{id_provincia}")
+    public ResponseEntity<?> BuscarDistritosPorProvincia(@PathVariable("id_provincia") Long id_provincia) {
 
         Set<DistritoResponse> lista_distritos = new HashSet<>();
 
-        distritoService.BuscarDistritos_By_IDProvincia(id).forEach(
-                distrito -> {
-                    lista_distritos.add(
-                            new DistritoResponse(
-                                    BuscarProvinciaByDistrito(distrito.getIdDistrito()),
-                                    distrito.getIdDistrito(),
-                                    distrito.getNombreDistrito()
-                            ));
-                });
+        distritoService.BuscarDistritos_By_IDProvincia(id_provincia).forEach(
+                distrito -> lista_distritos.add(
+                        new DistritoResponse(
+                                BuscarProvinciaByDistrito(distrito.getIdDistrito()),
+                                distrito.getIdDistrito(),
+                                distrito.getNombreDistrito()
+                        )));
 
         return new ResponseEntity<>(lista_distritos, HttpStatus.OK);
     }
 
-    Long BuscarProvinciaByDistrito(Long iddistrito) {
+    Long BuscarProvinciaByDistrito(Long id_distrito) {
 
-        Optional<Provincia> provincia_data = provinciaService.BuscarProvincia_IDDistrito(iddistrito);
+        Optional<Provincia> provincia_data = provinciaService.BuscarProvincia_IDDistrito(id_distrito);
 
         if (provincia_data.isPresent()) {
             Provincia provincia = provincia_data.get();

@@ -31,7 +31,7 @@ public class DistritoServiceImpl implements IDistritoService {
 
     @Override
     public Set<Distrito> BuscarDistritos_By_IDProvincia(Long id_provincia) {
-        return data.findDistritosByIDProvincia(id_provincia);
+        return data.findDistritosByIdProvincia(id_provincia);
     }
 
     @Override

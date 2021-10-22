@@ -5,9 +5,7 @@
 package pe.partnertech.fenosys.serviceimpl;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import pe.partnertech.fenosys.model.Usuario;
-import pe.partnertech.fenosys.model.UtilityToken;
 import pe.partnertech.fenosys.repository.IUsuarioDAO;
 import pe.partnertech.fenosys.service.IUsuarioService;
 
@@ -17,8 +15,6 @@ import java.util.Optional;
 @Service
 @Transactional
 public class UsuarioServiceImpl implements IUsuarioService {
-
-    //UTU: Utility Tokens de Usuario
 
     final
     IUsuarioDAO data;
@@ -43,8 +39,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
-    public Optional<Usuario> BuscarUsuario_By_UtilityToken(UtilityToken utilitytoken) {
-        return data.findByUtilitytokenUsuario(utilitytoken);
+    public Optional<Usuario> BuscarUsuario_By_IDUtilityToken(Long id_utilitytoken) {
+        return data.findByIdUtilitytoken(id_utilitytoken);
     }
 
     @Override
@@ -53,8 +49,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
-    public void GuardarUsuarioMultipart(Usuario usuario, MultipartFile archivo) {
-        data.save(usuario);
+    public Boolean ValidarEmail(String email_usuario) {
+        return data.existsByEmailUsuario(email_usuario);
     }
 
     @Override
@@ -63,12 +59,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
-    public void EliminarUsuario_From_UTU_MiddleTable(Long id_usuario) {
-        data.deleteUsuarioFromUTUMiddleTable(id_usuario);
-    }
-
-    @Override
-    public void EliminarUsuario_This(Long id_usuario) {
+    public void EliminarUsuario(Long id_usuario) {
         data.deleteById(id_usuario);
     }
 }

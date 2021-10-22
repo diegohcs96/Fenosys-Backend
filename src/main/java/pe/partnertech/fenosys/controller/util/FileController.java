@@ -4,7 +4,6 @@
 
 package pe.partnertech.fenosys.controller.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +21,24 @@ import java.util.Optional;
 @CrossOrigin
 public class FileController {
 
-    @Autowired
+    final
     IImagenService imagenService;
 
-    @GetMapping("/photos/{nombrearchivo}")
-    public ResponseEntity<?> DescargarFoto(@PathVariable String nombrearchivo) {
+    public FileController(IImagenService imagenService) {
+        this.imagenService = imagenService;
+    }
 
-        Optional<Imagen> imagen_data = imagenService.BuscarImagen_Nombre(nombrearchivo);
+    @GetMapping("/photos/{nombre_archivo}")
+    public ResponseEntity<?> DescargarFoto(@PathVariable String nombre_archivo) {
+
+        Optional<Imagen> imagen_data = imagenService.BuscarImagen_Nombre(nombre_archivo);
 
         if (imagen_data.isPresent()) {
 
             Imagen imagen = imagen_data.get();
 
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; nombrearchivo=\"" +
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; nombre_archivo=\"" +
                             imagen.getNombreImagen() + "\"")
                     .body(imagen.getArchivoImagen());
         } else {
