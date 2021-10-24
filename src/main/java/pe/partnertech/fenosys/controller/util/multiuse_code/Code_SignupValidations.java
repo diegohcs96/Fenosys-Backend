@@ -20,17 +20,17 @@ public class Code_SignupValidations {
             case "PENDIENTE":
                 return new ResponseEntity<>(new MessageResponse("Ya se ha utilizado este correo electrónico para un " +
                         "proceso de registro previo."),
-                        HttpStatus.BAD_REQUEST);
+                        HttpStatus.CONFLICT);
             case "ACTIVO":
             case "INACTIVO":
             case "BLOQUEADO":
                 return new ResponseEntity<>(new MessageResponse("Ya se encuentra en uso este correo electrónico por " +
                         "un usuario registrado en el sistema."),
-                        HttpStatus.BAD_REQUEST);
+                        HttpStatus.CONFLICT);
             default:
                 return new ResponseEntity<>(new MessageResponse("Ocurrió un error al determinar el " +
                         "estado de un usuario existente."),
-                        HttpStatus.BAD_REQUEST);
+                        HttpStatus.CONFLICT);
         }
     }
 }
