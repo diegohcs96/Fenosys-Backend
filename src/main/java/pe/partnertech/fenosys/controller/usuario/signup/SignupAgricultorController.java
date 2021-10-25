@@ -154,7 +154,7 @@ public class SignupAgricultorController {
                                 usuarioService.GuardarUsuario(agricultor);
 
                                 return new ResponseEntity<>(new MessageResponse("Se ha registrado satisfactoriamente. Revise su " +
-                                        "bandeja de entrada para verificar su cuenta, recuerde que dispone no más de 72 horas para " +
+                                        "bandeja de entrada para verificar su cuenta. Recuerde que dispone no más de 72 horas para " +
                                         "culminar dicho proceso. De lo contrario, deberá rellenar el formulario nuevamente."),
                                         HttpStatus.OK);
 
@@ -238,7 +238,7 @@ public class SignupAgricultorController {
                 "<h2>Hola,</h1>" +
                         "<p>Gracias por registrarte en Fenosys.</p>" +
                         "<br>Haz click en el link que se encuentra debajo para verificar su cuenta y tener acceso al sistema." +
-                        "<a href=" + url + ">Verificar Mi Cuenta</a>";
+                        "<a target=\"_blank\" href=" + url + ">Verificar Mi Cuenta</a>";
 
         helper.setSubject(asunto);
         helper.setText(contenido, true);

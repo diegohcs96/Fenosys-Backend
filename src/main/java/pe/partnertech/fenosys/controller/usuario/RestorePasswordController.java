@@ -40,12 +40,16 @@ public class RestorePasswordController {
 
     final
     IUsuarioService usuarioService;
+
     final
     IUtilityTokenService utilityTokenService;
+
     final
     JavaMailSender mailSender;
+
     final
     PasswordEncoder passwordEncoder;
+
     @Value("${front.baseurl}")
     private String baseurl;
 
@@ -93,11 +97,13 @@ public class RestorePasswordController {
                     return new ResponseEntity<>(new MessageResponse("Error al enviar el email."),
                             HttpStatus.BAD_REQUEST);
                 }
-                return new ResponseEntity<>(new MessageResponse("Revise su bandeja de entrada para continuar con el proceso " +
-                        "de Restauración de Contraseña."),
+                return new ResponseEntity<>(new MessageResponse("Revise su bandeja de entrada para continuar con el " +
+                        "proceso de Restauración de Contraseña. Recuerde que dispone de no más de 10 minutos para " +
+                        "culminar con el proceso. De lo contrario, deberá efectuar una nueva solicitud."),
                         HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(new MessageResponse("Ya se solicitó un proceso de Restauración previamente con este correo electrónico."),
+                return new ResponseEntity<>(new MessageResponse("Ya se solicitó un proceso de Restauración previamente " +
+                        "con este correo electrónico."),
                         HttpStatus.CONFLICT);
             }
         } else {
@@ -158,7 +164,7 @@ public class RestorePasswordController {
                         HttpStatus.NOT_FOUND);
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("Ocurrió un error al procesar su solicitud."),
+            return new ResponseEntity<>(new MessageResponse("El proceso de restauración ya no se encuentra disponible."),
                     HttpStatus.NOT_FOUND);
         }
     }
@@ -177,7 +183,7 @@ public class RestorePasswordController {
                 "<h2>Hola,</h1>" +
                         "<p>Gracias por realizar tu solicitud de Restauración de Contraseña.</p>" +
                         "<br>Haz click en el link que se encuentra debajo para continuar con el proceso." +
-                        "<a href=" + url + ">Restaurar mi Contraseña</a>";
+                        "<a target=\"_blank\" href=" + url + ">Restaurar mi Contraseña</a>";
 
         helper.setSubject(asunto);
         helper.setText(contenido, true);
