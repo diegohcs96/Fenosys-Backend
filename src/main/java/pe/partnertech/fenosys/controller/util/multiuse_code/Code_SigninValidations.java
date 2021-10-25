@@ -12,7 +12,7 @@ import pe.partnertech.fenosys.serviceimpl.UserDetailsImpl;
 
 public class Code_SigninValidations {
 
-    static public ResponseEntity<?> SigninUsuario(String jwt, UserDetailsImpl userDetails) {
+    public static ResponseEntity<?> SigninUsuario(String jwt, UserDetailsImpl userDetails) {
         switch (userDetails.getEstadoUsuario()) {
             case "PENDIENTE":
                 return new ResponseEntity<>(new MessageResponse("Tiene un proceso de registro pendiente por " +
