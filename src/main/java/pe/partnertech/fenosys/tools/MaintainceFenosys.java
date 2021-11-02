@@ -32,23 +32,23 @@ public class MaintainceFenosys {
     }
 
     @Scheduled(fixedRate = 60000)
-    public void EliminarUsuariosTimedOutSignupAdmin() {
+    public void EliminarAdminSignupTimedOut() {
         Set<UtilityToken> utilitytoken_list = utilityTokenService.BuscarUtilityToken_By_ExpiracionAndRazon(LocalDateTime.now(),
                 "Signup Admin");
 
-        UtilityTokenList(utilitytoken_list);
+        EliminarUsuario_UtilityToken(utilitytoken_list);
     }
 
     @Scheduled(fixedRate = 60000)
-    public void EliminarUsuariosTimedOutSignupAgricultor() {
+    public void EliminarAgricultorVerifyTimedOut() {
         Set<UtilityToken> utilitytoken_list = utilityTokenService.BuscarUtilityToken_By_ExpiracionAndRazon(LocalDateTime.now(),
                 "Signup Agricultor Verify");
 
-        UtilityTokenList(utilitytoken_list);
+        EliminarUsuario_UtilityToken(utilitytoken_list);
     }
 
     @Scheduled(fixedRate = 60000)
-    public void EliminarRestoreToken() {
+    public void EliminarRestorePasswordUtilityToken() {
         Set<UtilityToken> utilitytoken_list = utilityTokenService.BuscarUtilityToken_By_ExpiracionAndRazon(LocalDateTime.now(),
                 "Restore Password");
 
@@ -57,7 +57,7 @@ public class MaintainceFenosys {
         }
     }
 
-    private void UtilityTokenList(Set<UtilityToken> utilitytoken_list) {
+    private void EliminarUsuario_UtilityToken(Set<UtilityToken> utilitytoken_list) {
         for (UtilityToken utilitytoken : utilitytoken_list) {
             Optional<Usuario> usuario_timedout =
                     usuarioService.BuscarUsuario_By_IDUtilityToken(utilitytoken.getIdUtilityToken());

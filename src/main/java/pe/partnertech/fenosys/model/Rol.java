@@ -33,8 +33,7 @@ public class Rol implements Serializable {
     public Rol() {
     }
 
-    public Rol(int idRol, RolNombre nombreRol) {
-        this.idRol = idRol;
+    public Rol(RolNombre nombreRol) {
         this.nombreRol = nombreRol;
     }
 

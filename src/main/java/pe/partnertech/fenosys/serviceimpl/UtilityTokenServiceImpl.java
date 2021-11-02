@@ -42,7 +42,7 @@ public class UtilityTokenServiceImpl implements IUtilityTokenService {
 
     @Override
     public Set<UtilityToken> BuscarUtilityToken_By_IDUsuarioAndRazonUtilityToken(Long id_usuario, String razon_utilitytoken) {
-        return data.findUtilityTokensByIDUsuarioAndRazon(id_usuario, razon_utilitytoken);
+        return data.findUtilityTokensByIdUsuarioAndRazon(id_usuario, razon_utilitytoken);
     }
 
     @Override
