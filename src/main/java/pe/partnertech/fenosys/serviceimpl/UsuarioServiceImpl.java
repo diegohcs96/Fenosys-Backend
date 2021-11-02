@@ -40,17 +40,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     @Override
     public Optional<Usuario> BuscarUsuario_By_IDUtilityToken(Long id_utilitytoken) {
-        return data.findByIdUtilitytoken(id_utilitytoken);
+        return data.findByIdUtilityToken(id_utilitytoken);
     }
 
     @Override
     public Boolean ValidarUsername(String username_usuario) {
         return data.existsByUsernameUsuario(username_usuario);
-    }
-
-    @Override
-    public Boolean ValidarEmail(String email_usuario) {
-        return data.existsByEmailUsuario(email_usuario);
     }
 
     @Override

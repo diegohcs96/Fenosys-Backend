@@ -20,8 +20,6 @@ public interface IUsuarioService {
 
     Boolean ValidarUsername(String username_usuario);
 
-    Boolean ValidarEmail(String email_usuario);
-
     void GuardarUsuario(Usuario usuario);
 
     void EliminarUsuario(Long id_usuario);

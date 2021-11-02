@@ -23,9 +23,7 @@ public interface IUsuarioDAO extends JpaRepository<Usuario, Long> {
 
     @Query("SELECT u FROM Usuario u JOIN UtilityToken ut ON u.idUsuario = ut.usuarioUtilityToken.idUsuario " +
             "WHERE ut.idUtilityToken = ?1")
-    Optional<Usuario> findByIdUtilitytoken(Long id_utilitytoken);
+    Optional<Usuario> findByIdUtilityToken(Long id_utilitytoken);
 
     boolean existsByUsernameUsuario(String username_usuario);
-
-    boolean existsByEmailUsuario(String email_usuario);
 }

@@ -23,7 +23,7 @@ public class UtilityToken implements Serializable {
     @Column(name = "token_utilitytoken")
     private String tokenUtilityToken;
 
-    @Column(name = "razon_utilitytoken")
+    @Column(name = "razon_utilitytoken", length = 35)
     private String razonUtilityToken;
 
     @Column(name = "expiracion_utilitytoken")
