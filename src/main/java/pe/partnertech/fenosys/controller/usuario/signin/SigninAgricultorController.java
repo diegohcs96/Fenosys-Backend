@@ -46,13 +46,15 @@ public class SigninAgricultorController {
     @PostMapping("/agricultor/signin")
     public ResponseEntity<?> SignInAgricultor(@RequestBody SigninRequest signInRequest) {
 
-        Optional<Usuario> agricultor_data = usuarioService.BuscarUsuario_By_UsernameOrEmail(signInRequest.getUsernameUsuario());
+        Optional<Usuario> agricultor_data =
+                usuarioService.BuscarUsuario_By_UsernameOrEmail(signInRequest.getUsernameUsuario());
 
         if (agricultor_data.isPresent()) {
             Usuario agricultor = agricultor_data.get();
 
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(agricultor.getUsernameUsuario(), signInRequest.getPasswordUsuario())
+                    new UsernamePasswordAuthenticationToken(agricultor.getUsernameUsuario(),
+                            signInRequest.getPasswordUsuario())
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -64,10 +66,12 @@ public class SigninAgricultorController {
             if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_AGRICULTOR"))) {
                 return Code_SigninValidations.SigninUsuario(jwt, userDetails);
             } else {
-                return new ResponseEntity<>(new MessageResponse("No cumple con los permisos para acceder al sistema."), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new MessageResponse("No cumple con los permisos para acceder al sistema."),
+                        HttpStatus.BAD_REQUEST);
             }
         } else {
-            return new ResponseEntity<>(new MessageResponse("Usuario no encontrado en el sistema."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("Usuario no encontrado en el sistema."),
+                    HttpStatus.NOT_FOUND);
         }
     }
 }
