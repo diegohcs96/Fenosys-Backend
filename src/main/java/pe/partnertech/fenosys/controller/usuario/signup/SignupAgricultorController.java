@@ -196,7 +196,8 @@ public class SignupAgricultorController {
     @PutMapping("/agricultor/signup/verify")
     public ResponseEntity<?> SignupAgricultorVerify(@RequestBody UtilityTokenRequest utilityTokenRequest) {
 
-        Optional<UtilityToken> utilitytoken_data = utilityTokenService.BuscarUtilityToken_By_Token(utilityTokenRequest.getUtilityToken());
+        Optional<UtilityToken> utilitytoken_data =
+                utilityTokenService.BuscarUtilityToken_By_Token(utilityTokenRequest.getUtilityToken());
 
         if (utilitytoken_data.isPresent()) {
             UtilityToken utilitytoken = utilitytoken_data.get();
